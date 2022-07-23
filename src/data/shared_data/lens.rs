@@ -17,10 +17,9 @@ macro_rules! shared_data_variant_lens {
 			fn with_mut<V, F: FnOnce(&mut $internal_type) -> V>(&self, data: &mut SharedData, f: F) -> V {
 				if let SharedDataItem::$variant(n) = SHARED_MAP.write().unwrap().get_mut(&data.uuid).unwrap() {
 					let r = f(n);
-					if let SharedDataItem::$variant(loc) = data.local_copy.clone() {
-						if *n != loc {
-							data.backup(SharedDataItem::$variant(n.clone()));
-						}
+					let loc: $internal_type = { if let SharedDataItem::$variant(loc) = data.local_copy.read().unwrap().clone() { loc } else { panic!() } };
+					if *n != loc {
+						data.backup(SharedDataItem::$variant(n.clone()));
 					}
 					r
 				} else {

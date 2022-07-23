@@ -1,8 +1,11 @@
+pub mod controllers;
+
 use druid::{Widget, WidgetExt, TextAlignment, Menu, MenuItem, Env, WindowId, FileDialogOptions, commands, PaintCtx, Color, RenderContext, SysMods, LensExt};
 use druid::widget::{Label, Flex, TextBox, List, Painter, CrossAxisAlignment, Checkbox};
 
 use crate::data::shared_data::SharedData;
 use crate::delegate;
+use crate::dnd_rules::modifier;
 use crate::formatter::NumberFormatter;
 use crate::data::{CharacterState, AbilityScore, AbilityScoreType, Skill};
 
@@ -51,23 +54,29 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 						.with_text_size(H1_TEXT_SIZE)
 						.lens(CharacterState::name).expand_width(), 1.0
 				)
-				.with_spacer(10.0)
+				// .with_spacer(10.0)
+				.with_default_spacer()
 				.with_child(Label::new("Level: "))
 				.with_child(
 					TextBox::new()
 						.with_formatter(NumberFormatter::new())
 						.fix_width(48.0)
 						.lens(CharacterState::level)
+						.controller(controllers::CharacterLevelController)
 				)
 				.with_default_spacer()
-				.with_child(Label::new("Proficiency Bonus: "))
+				// .with_child(Label::new("Proficiency Bonus: "))
 				.with_child(
-					TextBox::new()
-						.with_formatter(NumberFormatter::new())
-						.lens(CharacterState::proficiency_bonus.then(SharedData::U8_LENS))
+					// TextBox::new()
+					// 	.with_formatter(NumberFormatter::new())
+					// 	.lens(CharacterState::proficiency_bonus.then(SharedData::U8_LENS))
+					Label::new(|data: &CharacterState, _env: &_| {
+						format!("Proficiency Bonus: {}", data.proficiency_bonus.item().unwrap_u8())
+					})
 				)
 		)
-		.with_spacer(10.0)
+		// .with_spacer(10.0)
+		.with_default_spacer()
 		.with_child(
 			Flex::row()
 				.with_child(
@@ -75,7 +84,8 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 						.with_child(
 							Label::new("Ability Scores").with_text_size(H1_TEXT_SIZE)
 						)
-						.with_spacer(10.0)
+						// .with_spacer(10.0)
+						.with_default_spacer()
 						.with_child(
 							List::new(|| {
 								ability_score()
@@ -114,6 +124,7 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 						1.0
 				)
 				.cross_axis_alignment(CrossAxisAlignment::Start)
+				.fix_width(600.0)
 				.align_left()
 				// .debug_paint_layout()
 		)
@@ -136,8 +147,7 @@ fn ability_score() -> impl Widget<AbilityScore> {
 				)
 				.with_child(
 					Label::new(|data: &AbilityScore, _env: &_| {
-						// println!("[Ability Score: {:?}] data.score ptr: {:#x?}", data.score_type, data.score.as_ptr());
-						let modifier = (data.score.item().unwrap_u8() as i16 - 10) / 2; // TODO: Does this work??
+						let modifier = modifier(data.score.item().unwrap_u8(), false, false, 0);
 						if modifier < 0 {
 							format!("({})", modifier.to_string())
 						} else {
@@ -172,8 +182,7 @@ fn saving_throw() -> impl Widget<AbilityScore> {
 	Flex::row()
 		.with_child(
 			Label::new(|data: &AbilityScore, _env: &_| {
-				let mut modifier = (data.score.item().unwrap_u8() as i16 - 10) / 2;
-				modifier += if data.saving_proficiency { data.proficiency_bonus.item().unwrap_u8() as i16 } else { 0 };
+				let modifier = modifier(data.score.item().unwrap_u8(), data.saving_proficiency, false, data.proficiency_bonus.item().unwrap_u8());
 				if modifier < 0 {
 					format!("{}", modifier.to_string())
 				} else {
@@ -215,10 +224,7 @@ fn skill() -> impl Widget<Skill> {
 	Flex::row()
 		.with_child(
 			Label::new(|data: &Skill, _env: &_| {
-				// println!("[Skill: {:?}] data.score ptr: {:#x?}", data.score_type, data.score.as_ptr());
-				let mut modifier = (data.score.item().unwrap_u8() as i16 - 10) / 2;
-				modifier += if data.proficiency { data.proficiency_bonus.item().unwrap_u8() as i16 } else { 0 };
-				modifier += if data.proficiency && data.expertise { data.proficiency_bonus.item().unwrap_u8() as i16 } else { 0 };
+				let modifier = modifier(data.score.item().unwrap_u8(), data.proficiency, data.expertise, data.proficiency_bonus.item().unwrap_u8());
 				if modifier < 0 {
 					format!("{}", modifier.to_string())
 				} else {

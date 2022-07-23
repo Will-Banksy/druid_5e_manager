@@ -2,9 +2,10 @@ use std::{path::{PathBuf}, fs::{File, self}, io::Write};
 
 use druid::{AppDelegate, DelegateCtx, Target, Command, Env, Handled, commands, FileDialogOptions, Selector};
 
-use crate::data::CharacterState;
+use crate::data::{CharacterState, shared_data::SharedDataItem};
 
 pub const UPDATE_WIDGET_TREE: Selector<()> = Selector::new("druid_play.update-widget-tree");
+pub const SET_PROFICIENCY_BONUS: Selector<u8> = Selector::new("druid_play.set-proficiency-bonus");
 
 pub struct Delegate {
 	has_path: bool,
@@ -51,6 +52,13 @@ impl AppDelegate<CharacterState> for Delegate {
 				*data = CharacterState::deserialise(&serialised);
 			}
 
+			Handled::Yes
+		} else if cmd.is(SET_PROFICIENCY_BONUS) {
+			if let Some(p) = cmd.get(SET_PROFICIENCY_BONUS) {
+				data.proficiency_bonus.set(SharedDataItem::U8(*p));
+			}
+
+			#[allow(unused)]
 			Handled::Yes
 		} else if cmd.is(UPDATE_WIDGET_TREE) {
 			todo!(); // TODO

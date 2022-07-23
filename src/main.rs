@@ -2,6 +2,7 @@ pub mod formatter;
 pub mod data;
 pub mod view;
 pub mod delegate;
+pub mod dnd_rules;
 
 use data::{CharacterState};
 use druid::{PlatformError, AppLauncher, WindowDesc};

@@ -1,8 +1,4 @@
-// pub mod serialisation;
-// pub mod arcmut;
 pub mod shared_data;
-
-// pub use arcmut::MutArc;
 
 use std::{fmt::Display};
 
@@ -16,11 +12,11 @@ use self::shared_data::{SharedData, SharedDataItem};
 // Maybe someday I'll add the ability for homebrew ability scores and skills
 #[derive(Clone, Data, Lens, Serialize, Deserialize)]
 pub struct CharacterState {
-	name: String,
-	level: u8,
-	proficiency_bonus: SharedData,
-	ability_scores: im::Vector<AbilityScore>,
-	skills: im::Vector<Skill>
+	pub name: String,
+	pub level: u8,
+	pub proficiency_bonus: SharedData,
+	pub ability_scores: im::Vector<AbilityScore>,
+	pub skills: im::Vector<Skill>
 }
 
 #[derive(Debug, Clone, Copy, Data, PartialEq, Serialize, Deserialize)]
