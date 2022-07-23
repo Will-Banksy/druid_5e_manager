@@ -31,7 +31,8 @@ pub enum SharedDataItem {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(into = "serialization::SerializableSharedData", from = "serialization::SerializableSharedData")]
 pub struct SharedData {
-	uuid: u128
+	uuid: u128,
+	local_copy: SharedDataItem
 }
 
 impl Display for SharedDataItem {
@@ -56,22 +57,24 @@ impl Display for SharedDataItem {
 impl SharedData {
 	pub fn new(data: SharedDataItem) -> Self {
 		let uuid = Uuid::new_v4().as_u128();
+		let local_copy = data.clone();
 		SHARED_MAP.write().unwrap().insert(uuid, data);
-		SharedData { uuid }
+		SharedData { uuid, local_copy }
 	}
 
 	/// Returns none if there is no entry in the shared map for this uuid
 	pub fn from_uuid(uuid: u128) -> Option<Self> {
 		if SHARED_MAP.read().unwrap().contains_key(&uuid) {
-			Some(SharedData { uuid })
+			Some(SharedData { uuid, local_copy: SHARED_MAP.read().unwrap().get(&uuid).unwrap().clone() })
 		} else {
 			None
 		}
 	}
 
 	pub fn make(uuid: u128, data: SharedDataItem) -> Self {
+		let local_copy = data.clone();
 		SHARED_MAP.write().unwrap().insert(uuid, data);
-		SharedData { uuid }
+		SharedData { uuid, local_copy }
 	}
 
 	pub fn uuid(&self) -> u128 {
@@ -80,6 +83,14 @@ impl SharedData {
 
 	pub fn item(&self) -> SharedDataItem {
 		SHARED_MAP.read().unwrap().get(&self.uuid).unwrap().clone()
+	}
+
+	pub fn local_copy(&self) -> &SharedDataItem {
+		&self.local_copy
+	}
+
+	pub fn backup(&mut self, data: SharedDataItem) {
+		self.local_copy = data;
 	}
 }
 
@@ -92,7 +103,6 @@ impl Display for SharedData {
 
 impl Data for SharedData {
     fn same(&self, other: &Self) -> bool {
-        // TODO: Find a definition of same that does not cause bugs...
-		self.uuid == other.uuid && self.item() == other.item()
+		self.uuid == other.uuid && *self.local_copy() == self.item() && *other.local_copy() == other.item()
     }
 }

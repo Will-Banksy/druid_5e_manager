@@ -173,7 +173,7 @@ fn saving_throw() -> impl Widget<AbilityScore> {
 		.with_child(
 			Label::new(|data: &AbilityScore, _env: &_| {
 				let mut modifier = (data.score.item().unwrap_u8() as i16 - 10) / 2;
-				modifier += if data.saving_proficiency { data.proficiency_bonus.item().unwrap_u8() as i16 } else { 0 }; // TODO: Proficiency bonus
+				modifier += if data.saving_proficiency { data.proficiency_bonus.item().unwrap_u8() as i16 } else { 0 };
 				if modifier < 0 {
 					format!("{}", modifier.to_string())
 				} else {
@@ -217,7 +217,8 @@ fn skill() -> impl Widget<Skill> {
 			Label::new(|data: &Skill, _env: &_| {
 				// println!("[Skill: {:?}] data.score ptr: {:#x?}", data.score_type, data.score.as_ptr());
 				let mut modifier = (data.score.item().unwrap_u8() as i16 - 10) / 2;
-				modifier += if data.proficiency { 2 } else { 0 }; // TODO: Proficiency bonus
+				modifier += if data.proficiency { data.proficiency_bonus.item().unwrap_u8() as i16 } else { 0 };
+				modifier += if data.proficiency && data.expertise { data.proficiency_bonus.item().unwrap_u8() as i16 } else { 0 };
 				if modifier < 0 {
 					format!("{}", modifier.to_string())
 				} else {
@@ -235,6 +236,9 @@ fn skill() -> impl Widget<Skill> {
 		.with_flex_spacer(1.0)
 		.with_child(
 			Checkbox::new("Proficiency").lens(Skill::proficiency)
+		)
+		.with_child(
+			Checkbox::new("Expertise").lens(Skill::expertise).disabled_if(|data: &Skill, _env: &_| !data.proficiency)
 		)
 		.with_child(
 			Checkbox::new("Advantage").lens(Skill::advantage)
