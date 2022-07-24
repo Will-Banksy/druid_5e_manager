@@ -1,11 +1,14 @@
 pub mod shared_data;
 
-use std::{fmt::Display};
+use std::fmt::Display;
 
 use druid::{Data, Lens};
 use im;
 use serde::{Serialize, Deserialize};
 use strum_macros::Display;
+use uuid::Uuid;
+
+use crate::dnd_rules;
 
 use self::shared_data::{SharedData, SharedDataItem};
 
@@ -13,7 +16,8 @@ use self::shared_data::{SharedData, SharedDataItem};
 #[derive(Clone, Data, Lens, Serialize, Deserialize)]
 pub struct CharacterState {
 	pub name: String,
-	pub level: u8,
+	pub level: u16, // The combined level
+	pub levels: im::Vector<Level>,
 	pub proficiency_bonus: SharedData,
 	pub ability_scores: im::Vector<AbilityScore>,
 	pub skills: im::Vector<Skill>
@@ -82,10 +86,17 @@ pub struct Skill {
 	pub advantage: bool
 }
 
+#[derive(Clone, Data, Lens, Serialize, Deserialize)]
+pub struct Level {
+	pub uuid: u128,
+	pub name: String,
+	pub level: u8
+}
+
 impl CharacterState {
 	pub fn new() -> Self {
 		let level = 1;
-		let prof = SharedData::new(SharedDataItem::U8(2));
+		let prof = SharedData::new(SharedDataItem::U16(dnd_rules::proficiency_bonus_for(level)));
 
 		let ability_scores = im::vector![
 			AbilityScore::new(AbilityScoreType::Strength, prof.clone()),
@@ -121,20 +132,25 @@ impl CharacterState {
 			Skill::new(SkillType::Persuasion, &ability_scores[5]),
 		];
 
+		let levels = im::vector![
+			Level::new("".to_string(), 1)
+		];
+
 		CharacterState {
 			name: "".into(),
 			level,
+			levels,
 			proficiency_bonus: prof.clone(),
 			ability_scores,
 			skills
 		}
 	}
 
-	pub fn serialise(&self) -> String {
+	pub fn serialize(&self) -> String {
 		ron::to_string(self).expect("Serialisation of CharacterState failed - This indicates a bug")
 	}
 
-	pub fn deserialise(serialized: &str) -> Self {
+	pub fn deserialize(serialized: &str) -> Self {
 		ron::from_str(serialized).expect("Deserialisation of RON to CharacterState failed - The file might've failed to save correctly, or been edited externally, or created with an incompatible version of this program")
 	}
 }
@@ -160,5 +176,11 @@ impl Skill {
 			skill_type,
 			proficiency: false, expertise: false, advantage: false
 		}
+	}
+}
+
+impl Level {
+	pub fn new(name: String, level: u8) -> Self {
+		Level { uuid: Uuid::new_v4().as_u128(), name, level }
 	}
 }
