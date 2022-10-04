@@ -1,5 +1,3 @@
-pub mod shared_data;
-
 use std::fmt::Display;
 
 use druid::{Data, Lens};
@@ -10,17 +8,19 @@ use uuid::Uuid;
 
 use crate::dnd_rules;
 
-use self::shared_data::{SharedData, SharedDataItem};
-
 // Maybe someday I'll add the ability for homebrew ability scores and skills
 #[derive(Clone, Data, Lens, Serialize, Deserialize)]
 pub struct CharacterState {
 	pub name: String,
+	pub race: String,
 	pub level: u16, // The combined level
 	pub levels: im::Vector<Level>,
-	pub proficiency_bonus: SharedData,
+	pub proficiency_bonus: u16,
 	pub ability_scores: im::Vector<AbilityScore>,
-	pub skills: im::Vector<Skill>
+	pub skills: im::Vector<Skill>,
+	pub hp: u32,
+	pub hp_max: u32,
+	pub temp_hp: u32
 }
 
 #[derive(Debug, Clone, Copy, Data, PartialEq, Serialize, Deserialize)]
@@ -35,9 +35,9 @@ pub enum AbilityScoreType {
 
 #[derive(Clone, Data, Lens, Serialize, Deserialize)]
 pub struct AbilityScore {
-	pub proficiency_bonus: SharedData,
+	pub proficiency_bonus: u16,
 	pub score_type: AbilityScoreType,
-	pub score: SharedData,
+	pub score: u8,
 	pub saving_proficiency: bool,
 	pub saving_advantage: bool
 }
@@ -77,9 +77,9 @@ pub enum SkillType {
 
 #[derive(Clone, Data, Lens, Serialize, Deserialize)]
 pub struct Skill {
-	pub proficiency_bonus: SharedData,
+	pub proficiency_bonus: u16,
 	pub score_type: AbilityScoreType,
-	pub score: SharedData,
+	pub score: u8,
 	pub skill_type: SkillType,
 	pub proficiency: bool,
 	pub expertise: bool,
@@ -93,18 +93,24 @@ pub struct Level {
 	pub level: u8
 }
 
+// #[derive(Default, Debug, Clone, Data, Lens, Serialize, Deserialize)]
+// pub struct ValueOfMax<T> {
+// 	pub val: T,
+// 	pub max: T
+// }
+
 impl CharacterState {
 	pub fn new() -> Self {
 		let level = 1;
-		let prof = SharedData::new(SharedDataItem::U16(dnd_rules::proficiency_bonus_for(level)));
+		let prof = dnd_rules::proficiency_bonus_for(level);
 
 		let ability_scores = im::vector![
-			AbilityScore::new(AbilityScoreType::Strength, prof.clone()),
-			AbilityScore::new(AbilityScoreType::Dexterity, prof.clone()),
-			AbilityScore::new(AbilityScoreType::Constitution, prof.clone()),
-			AbilityScore::new(AbilityScoreType::Intelligence, prof.clone()),
-			AbilityScore::new(AbilityScoreType::Wisdom, prof.clone()),
-			AbilityScore::new(AbilityScoreType::Charisma, prof.clone())
+			AbilityScore::new(AbilityScoreType::Strength, prof),
+			AbilityScore::new(AbilityScoreType::Dexterity, prof),
+			AbilityScore::new(AbilityScoreType::Constitution, prof),
+			AbilityScore::new(AbilityScoreType::Intelligence, prof),
+			AbilityScore::new(AbilityScoreType::Wisdom, prof),
+			AbilityScore::new(AbilityScoreType::Charisma, prof)
 		];
 
 		let skills = im::vector![
@@ -138,26 +144,32 @@ impl CharacterState {
 
 		CharacterState {
 			name: "".into(),
+			race: "".into(),
 			level,
 			levels,
-			proficiency_bonus: prof.clone(),
+			proficiency_bonus: prof,
 			ability_scores,
-			skills
+			skills,
+			hp: 0,
+			hp_max: 0,
+			temp_hp: 0
 		}
 	}
 
 	pub fn serialize(&self) -> String {
-		ron::to_string(self).expect("Serialisation of CharacterState failed - This indicates a bug")
+		// ron::to_string(self).expect("Serialisation of CharacterState failed - This indicates a bug")
+		serde_json::to_string(self).expect("Serialisation of CharacterState failed - This indicates a bug")
 	}
 
 	pub fn deserialize(serialized: &str) -> Self {
-		ron::from_str(serialized).expect("Deserialisation of RON to CharacterState failed - The file might've failed to save correctly, or been edited externally, or created with an incompatible version of this program")
+		// ron::from_str(serialized).expect("Deserialisation of RON to CharacterState failed - The file might've failed to save correctly, or been edited externally, or created with an incompatible version of this program")
+		serde_json::from_str(serialized).expect("Deserialisation of RON to CharacterState failed - The file might've failed to save correctly, or been edited externally, or created with an incompatible version of this program")
 	}
 }
 
 impl AbilityScore {
-	pub fn new(score_type: AbilityScoreType, proficiency_bonus: SharedData) -> Self {
-		AbilityScore { proficiency_bonus: proficiency_bonus.clone(), score_type, score: SharedData::new(SharedDataItem::U8(8)), saving_proficiency: false, saving_advantage: false }
+	pub fn new(score_type: AbilityScoreType, proficiency_bonus: u16) -> Self {
+		AbilityScore { proficiency_bonus: proficiency_bonus, score_type, score: 8, saving_proficiency: false, saving_advantage: false }
 	}
 }
 
@@ -184,3 +196,24 @@ impl Level {
 		Level { uuid: Uuid::new_v4().as_u128(), name, level }
 	}
 }
+
+// impl<T> ValueOfMax<T> {
+// 	pub fn new(val: T, max: T) -> Self {
+// 		Self {
+// 			val,
+// 			max
+// 		}
+// 	}
+// }
+
+// impl<T> Display for ValueOfMax<T> where T: Display {
+// 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+// 		write!(f, "{}/{}", self.val, self.max)
+// 	}
+// }
+
+// impl<T> Default for ValueOfMax<T> where T: Default {
+// 	fn default() -> Self {
+// 		Self { val: Default::default(), max: Default::default() }
+// 	}
+// }

@@ -6,10 +6,11 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-druid = { git = "https://github.com/linebender/druid.git", features = [ "im", "svg", "image" ] }
+druid = { git = "https://github.com/linebender/druid.git", features = [ "im", "svg", "image" ], rev = "fc05e965c85fced8720c655685e02478e0530e94" }
 num = "0.4.0"
 serde = { version = "1.0.137", features = [ "derive" ] }
-ron = "0.7.1" # Rusty Object Notation
+serde_json = "1.0.85"
+ron = "0.8.0" # Rusty Object Notation
 im = { version = "15.1.0", features = [ "serde" ] }
 syn = "1.0.98" # Here to resolve a dependency version conflict
 strum = { version = "0.24.1", features = [ "derive" ]}
@@ -18,3 +19,4 @@ lazy_static = "1.4.0"
 uuid = { version = "1.1.2", features = [ "v4", "fast-rng" ]}
 variantly = "0.2.0"
 image = "0.24.3"
+druid-widget-nursery = { git = "https://github.com/linebender/druid-widget-nursery" }

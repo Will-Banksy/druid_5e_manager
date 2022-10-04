@@ -1,21 +1,35 @@
 pub mod controllers;
 
-use druid::{Widget, WidgetExt, TextAlignment, Menu, MenuItem, Env, WindowId, FileDialogOptions, commands, PaintCtx, Color, RenderContext, SysMods, LensExt, theme, EventCtx};
+use druid::{Widget, WidgetExt, TextAlignment, Menu, MenuItem, Env, WindowId, FileDialogOptions, commands, PaintCtx, Color, RenderContext, SysMods, theme, EventCtx};
 use druid::widget::{Label, Flex, TextBox, List, Painter, CrossAxisAlignment, Checkbox, Button};
 
-use crate::data::shared_data::SharedData;
 use crate::delegate;
 use crate::dnd_rules::modifier;
 use crate::formatter::NumberFormatter;
 use crate::data::{CharacterState, AbilityScore, AbilityScoreType, Skill, Level};
 
-const H1_TEXT_SIZE: f64 = 20.0;
+// TODO: Should really put all this shit in the Env
+const TEXT_SIZE_TITLE: f64 = 28.0;
+const TEXT_SIZE_H1: f64 = 20.0;
+
 const STRENGTH_COLOUR: Color = Color::Rgba32(0x421c1cff);
 const DEXTERITY_COLOUR: Color = Color::Rgba32(0x2a5639ff);
 const CONSTITUTION_COLOUR: Color = Color::Rgba32(0x4e351bff);
 const INTELLIGENCE_COLOUR: Color = Color::Rgba32(0x264063ff);
 const WISDOM_COLOUR: Color = Color::Rgba32(0x4c5644ff);
 const CHARISMA_COLOUR: Color = Color::Rgba32(0x5a2139ff);
+
+fn color_for(score_type: AbilityScoreType, _env: &Env) -> Color { // TODO: Decide: Do I use AS-specific colours or just dark background
+	match score_type {
+		AbilityScoreType::Strength => STRENGTH_COLOUR,
+		AbilityScoreType::Dexterity => DEXTERITY_COLOUR,
+		AbilityScoreType::Constitution => CONSTITUTION_COLOUR,
+		AbilityScoreType::Intelligence => INTELLIGENCE_COLOUR,
+		AbilityScoreType::Wisdom => WISDOM_COLOUR,
+		AbilityScoreType::Charisma => CHARISMA_COLOUR
+	}
+	// env.get(theme::BACKGROUND_DARK)
+}
 
 pub fn build_app_menu(_window_id: Option<WindowId>, _state: &CharacterState, _env: &Env) -> Menu<CharacterState> {
 	// TODO: Force immediate update/handling of commands...somehow?
@@ -51,8 +65,15 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 				.with_flex_child(
 					TextBox::new()
 						.with_placeholder("Character Name")
-						.with_text_size(H1_TEXT_SIZE)
-						.lens(CharacterState::name).expand_width(), 1.0
+						.with_text_size(TEXT_SIZE_TITLE)
+						.lens(CharacterState::name).expand_width(), 0.75
+				)
+				.with_default_spacer()
+				.with_flex_child(
+					TextBox::new()
+						.with_placeholder("Race")
+						// .with_text_size(TEXT_SIZE_H1)
+						.lens(CharacterState::race).expand_width(), 0.25
 				)
 				.with_default_spacer()
 				.with_child(
@@ -60,18 +81,11 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 						format!("Level: {}", data)
 					}).lens(CharacterState::level)//.controller(controllers::CharacterLevelController)
 				)
-				// .with_child(
-				// 	// TextBox::new()
-				// 	// 	.with_formatter(NumberFormatter::new())
-				// 	// 	.fix_width(48.0)
-				// 	// 	.lens(CharacterState::level)
-				// 	// 	.controller(controllers::CharacterLevelController)
-				// )
 				.with_default_spacer()
 				.with_child(
-					Label::new(|data: &CharacterState, _env: &_| {
-						format!("Proficiency Bonus: {}", data.proficiency_bonus.item().unwrap_u16())
-					})//.lens(CharacterState::proficiency_bonus.then(SharedData::U8_LENS))
+					Label::new(|data: &u16, _env: &_| {
+						format!("Proficiency Bonus: {}", data)
+					}).lens(CharacterState::proficiency_bonus)//.then(SharedData::U16_LENS))
 				)
 		)
 		.with_default_spacer()
@@ -98,7 +112,7 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 				.with_child(
 					Flex::column()
 						.with_child(
-							Label::new("Ability Scores").with_text_size(H1_TEXT_SIZE)
+							Label::new("Ability Scores").with_text_size(TEXT_SIZE_H1)
 						)
 						.with_default_spacer()
 						.with_child(
@@ -114,7 +128,7 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 				.with_flex_child(
 					Flex::column()
 						.with_child(
-							Label::new("Saving Throws").with_text_size(H1_TEXT_SIZE)
+							Label::new("Saving Throws").with_text_size(TEXT_SIZE_H1)
 						)
 						.with_default_spacer()
 						.with_child(
@@ -125,7 +139,7 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 						)
 						.with_default_spacer()
 						.with_child(
-							Label::new("Skills").with_text_size(H1_TEXT_SIZE)
+							Label::new("Skills").with_text_size(TEXT_SIZE_H1)
 						)
 						.with_default_spacer()
 						.with_child(
@@ -137,8 +151,53 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 						.cross_axis_alignment(CrossAxisAlignment::Start),
 						1.0
 				)
+				.with_default_spacer()
+				.with_flex_child(
+					Flex::column()
+						.with_child(
+							Label::new("Health Points")
+								.with_text_size(TEXT_SIZE_H1)
+						)
+						.with_default_spacer()
+						.with_child(
+							Flex::row()
+								.with_child(
+									TextBox::new()
+										.with_text_alignment(TextAlignment::Center)
+										.with_text_size(TEXT_SIZE_H1)
+										.with_formatter(NumberFormatter::new())
+										.fix_width(46.0)
+										.lens(CharacterState::hp)
+								)
+								.with_child(
+									Label::new("/")
+								)
+								.with_child(
+									TextBox::new()
+										.with_text_alignment(TextAlignment::Center)
+										.with_formatter(NumberFormatter::new())
+										.fix_width(36.0)
+										.lens(CharacterState::hp_max)
+								)
+						)
+						.with_default_spacer()
+						.with_child(
+							Flex::row()
+								.with_child(
+									Label::new("Temp: ")
+								)
+								.with_child(
+									TextBox::new()
+										.with_text_alignment(TextAlignment::Center)
+										.with_formatter(NumberFormatter::new())
+										.fix_width(36.0)
+										.lens(CharacterState::temp_hp)
+								)
+						),
+					1.0
+				)
 				.cross_axis_alignment(CrossAxisAlignment::Start)
-				.fix_width(640.0)
+				// .fix_width(500.0)
 				.align_left()
 				// .debug_paint_layout()
 		)
@@ -159,22 +218,22 @@ fn ability_score() -> impl Widget<AbilityScore> {
 				.with_spacer(4.0)
 				.with_child(
 					Label::new(|data: &AbilityScore, _env: &_| {
-						let modifier = modifier(data.score.item().unwrap_u8(), false, false, 0);
+						let modifier = modifier(data.score, false, false, 0);
 						if modifier < 0 {
 							format!("{}", modifier.to_string())
 						} else {
 							format!("+{}", modifier)
 						}
-					}).with_text_size(H1_TEXT_SIZE).center().fix_width(48.0)
+					}).with_text_size(TEXT_SIZE_H1).center().fix_width(48.0)
 				)
 				.with_spacer(4.0)
 				.with_child(
 					TextBox::new()
 						.with_text_alignment(TextAlignment::Center)
 						.with_formatter(NumberFormatter::new())
-						.lens(AbilityScore::score.then(SharedData::U8_LENS))
+						.lens(AbilityScore::score)
 						.center()
-						.fix_width(48.0)
+						.fix_width(48.0).controller(controllers::DataUpdateAlertController::new(delegate::SET_ABILITY_SCORE, |sel, data: AbilityScore| sel.with((data.score_type, data.score))))
 				)
 		)
 		.padding((6.0, 8.0))
@@ -182,14 +241,7 @@ fn ability_score() -> impl Widget<AbilityScore> {
 		.fix_width(100.0)
 		.background(Painter::new(|ctx: &mut PaintCtx, data: &AbilityScore, env: &Env| {
 			let bounds = ctx.size().to_rect();
-			let colour = match data.score_type {
-				AbilityScoreType::Strength => STRENGTH_COLOUR,
-				AbilityScoreType::Dexterity => DEXTERITY_COLOUR,
-				AbilityScoreType::Constitution => CONSTITUTION_COLOUR,
-				AbilityScoreType::Intelligence => INTELLIGENCE_COLOUR,
-				AbilityScoreType::Wisdom => WISDOM_COLOUR,
-				AbilityScoreType::Charisma => CHARISMA_COLOUR
-			};
+			let colour = color_for(data.score_type, env);
 			ctx.fill(bounds.to_rounded_rect(env.get(druid::theme::TEXTBOX_BORDER_RADIUS)), &colour);
 		}))
 }
@@ -198,7 +250,7 @@ fn saving_throw() -> impl Widget<AbilityScore> {
 	Flex::row()
 		.with_child(
 			Label::new(|data: &AbilityScore, _env: &_| {
-				let modifier = modifier(data.score.item().unwrap_u8(), data.saving_proficiency, false, data.proficiency_bonus.item().unwrap_u16());
+				let modifier = modifier(data.score, data.saving_proficiency, false, data.proficiency_bonus);
 				if modifier < 0 {
 					format!("{}", modifier.to_string())
 				} else {
@@ -215,22 +267,15 @@ fn saving_throw() -> impl Widget<AbilityScore> {
 		.with_default_spacer()
 		.with_flex_spacer(1.0)
 		.with_child(
-			Checkbox::new("Proficiency").lens(AbilityScore::saving_proficiency)
+			Checkbox::new("Prof.").lens(AbilityScore::saving_proficiency)
 		)
 		.with_child(
-			Checkbox::new("Advantage").lens(AbilityScore::saving_advantage)
+			Checkbox::new("Adv.").lens(AbilityScore::saving_advantage)
 		)
 		.padding((4.0, 2.0))
 		.background(Painter::new(|ctx: &mut PaintCtx, data: &AbilityScore, env: &Env| {
 			let bounds = ctx.size().to_rect();
-			let colour = match data.score_type {
-				AbilityScoreType::Strength => STRENGTH_COLOUR,
-				AbilityScoreType::Dexterity => DEXTERITY_COLOUR,
-				AbilityScoreType::Constitution => CONSTITUTION_COLOUR,
-				AbilityScoreType::Intelligence => INTELLIGENCE_COLOUR,
-				AbilityScoreType::Wisdom => WISDOM_COLOUR,
-				AbilityScoreType::Charisma => CHARISMA_COLOUR
-			};
+			let colour = color_for(data.score_type, env);
 			ctx.fill(bounds.to_rounded_rect(env.get(druid::theme::TEXTBOX_BORDER_RADIUS)), &colour);
 		}))
 		// .debug_paint_layout()
@@ -240,7 +285,7 @@ fn skill() -> impl Widget<Skill> {
 	Flex::row()
 		.with_child(
 			Label::new(|data: &Skill, _env: &_| {
-				let modifier = modifier(data.score.item().unwrap_u8(), data.proficiency, data.expertise, data.proficiency_bonus.item().unwrap_u16());
+				let modifier = modifier(data.score, data.proficiency, data.expertise, data.proficiency_bonus);
 				if modifier < 0 {
 					format!("{}", modifier.to_string())
 				} else {
@@ -268,25 +313,18 @@ fn skill() -> impl Widget<Skill> {
 		.with_default_spacer()
 		.with_flex_spacer(1.0)
 		.with_child(
-			Checkbox::new("Proficiency").lens(Skill::proficiency)
+			Checkbox::new("Prof.").lens(Skill::proficiency)
 		)
 		.with_child(
-			Checkbox::new("Expertise").lens(Skill::expertise).disabled_if(|data: &Skill, _env: &_| !data.proficiency)
+			Checkbox::new("Ex.").lens(Skill::expertise).disabled_if(|data: &Skill, _env: &_| !data.proficiency)
 		)
 		.with_child(
-			Checkbox::new("Advantage").lens(Skill::advantage)
+			Checkbox::new("Adv.").lens(Skill::advantage)
 		)
 		.padding((4.0, 2.0))
 		.background(Painter::new(|ctx: &mut PaintCtx, data: &Skill, env: &Env| {
 			let bounds = ctx.size().to_rect();
-			let colour = match data.score_type {
-				AbilityScoreType::Strength => STRENGTH_COLOUR,
-				AbilityScoreType::Dexterity => DEXTERITY_COLOUR,
-				AbilityScoreType::Constitution => CONSTITUTION_COLOUR,
-				AbilityScoreType::Intelligence => INTELLIGENCE_COLOUR,
-				AbilityScoreType::Wisdom => WISDOM_COLOUR,
-				AbilityScoreType::Charisma => CHARISMA_COLOUR
-			};
+			let colour = color_for(data.score_type, env);
 			ctx.fill(bounds.to_rounded_rect(env.get(druid::theme::TEXTBOX_BORDER_RADIUS)), &colour);
 		}))
 }

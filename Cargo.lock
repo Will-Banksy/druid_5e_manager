@@ -390,7 +390,7 @@ dependencies = [
 [[package]]
 name = "druid"
 version = "0.7.0"
-source = "git+https://github.com/linebender/druid.git#7d08672124df13b3473f62fa7fe74d7e840a6361"
+source = "git+https://github.com/linebender/druid.git?rev=fc05e965c85fced8720c655685e02478e0530e94#fc05e965c85fced8720c655685e02478e0530e94"
 dependencies = [
  "console_error_panic_hook",
  "druid-derive",
@@ -413,7 +413,7 @@ dependencies = [
 [[package]]
 name = "druid-derive"
 version = "0.4.0"
-source = "git+https://github.com/linebender/druid.git#7d08672124df13b3473f62fa7fe74d7e840a6361"
+source = "git+https://github.com/linebender/druid.git?rev=fc05e965c85fced8720c655685e02478e0530e94#fc05e965c85fced8720c655685e02478e0530e94"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -423,7 +423,7 @@ dependencies = [
 [[package]]
 name = "druid-shell"
 version = "0.7.0"
-source = "git+https://github.com/linebender/druid.git#7d08672124df13b3473f62fa7fe74d7e840a6361"
+source = "git+https://github.com/linebender/druid.git?rev=fc05e965c85fced8720c655685e02478e0530e94#fc05e965c85fced8720c655685e02478e0530e94"
 dependencies = [
  "anyhow",
  "bitflags",
@@ -455,16 +455,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "druid-widget-nursery"
+version = "0.1.0"
+source = "git+https://github.com/linebender/druid-widget-nursery#50b1cd1b59573159377ed3c0a25ca80e791a7574"
+dependencies = [
+ "druid",
+ "log",
+ "tracing",
+]
+
+[[package]]
 name = "druid_5e_manager"
 version = "0.1.0"
 dependencies = [
  "druid",
+ "druid-widget-nursery",
  "im",
  "image 0.24.3",
  "lazy_static",
  "num",
  "ron",
  "serde",
+ "serde_json",
  "strum 0.24.1",
  "strum_macros 0.24.2",
  "syn",
@@ -1023,6 +1035,12 @@ checksum = "a9a9d19fa1e79b6215ff29b9d6880b706147f16e9b1dbb1e4e5947b5b02bc5e3"
 dependencies = [
  "either",
 ]
+
+[[package]]
+name = "itoa"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6c8af84674fe1f223a982c933a0ee1086ac4d4052aa0fb8060c12c6ad838e754"
 
 [[package]]
 name = "jpeg-decoder"
@@ -1625,9 +1643,9 @@ checksum = "a3f87b73ce11b1619a3c6332f45341e0047173771e8b8b73f87bfeefb7b56244"
 
 [[package]]
 name = "ron"
-version = "0.7.1"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88073939a61e5b7680558e6be56b419e208420c2adb92be54921fa6b72283f1a"
+checksum = "300a51053b1cb55c80b7a9fde4120726ddf25ca241a1cbb926626f62fb136bff"
 dependencies = [
  "base64",
  "bitflags",
@@ -1679,6 +1697,12 @@ dependencies = [
  "unicode-general-category",
  "unicode-script",
 ]
+
+[[package]]
+name = "ryu"
+version = "1.0.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4501abdff3ae82a1c1b477a17252eb69cee9e66eb915c1abaa4f44d873df9f09"
 
 [[package]]
 name = "scoped_threadpool"
@@ -1734,6 +1758,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "serde_json"
+version = "1.0.85"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e55a28e3aaef9d5ce0506d0a14dbba8054ddc7e499ef522dd8b26859ec9d4a44"
+dependencies = [
+ "itoa",
+ "ryu",
+ "serde",
 ]
 
 [[package]]

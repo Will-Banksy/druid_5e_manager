@@ -1,13 +1,14 @@
 use std::{path::{PathBuf}, fs::{File, self}, io::Write};
 
-use druid::{AppDelegate, DelegateCtx, Target, Command, Env, Handled, commands, FileDialogOptions, Selector};
+use druid::{AppDelegate, DelegateCtx, Target, Command, Env, Handled, commands, FileDialogOptions, Selector, widget::ListIter};
 
-use crate::{data::{CharacterState, shared_data::SharedDataItem}, dnd_rules};
+use crate::{data::{CharacterState, AbilityScoreType}, dnd_rules};
 
-pub const UPDATE_WIDGET_TREE: Selector<()> = Selector::new("druid_play.update-widget-tree");
-pub const SET_PROFICIENCY_BONUS: Selector<u16> = Selector::new("druid_play.set-proficiency-bonus");
-pub const RECALC_OVERALL_LEVEL: Selector<()> = Selector::new("druid_play.recalc-overall-level");
-pub const DELETE_LEVEL: Selector<u128> = Selector::new("druid_play.delete-level");
+pub const UPDATE_WIDGET_TREE: Selector<()> = Selector::new("druid_5e_manager.update-widget-tree");
+pub const SET_PROFICIENCY_BONUS: Selector<u16> = Selector::new("druid_5e_manager.set-proficiency-bonus");
+pub const RECALC_OVERALL_LEVEL: Selector<()> = Selector::new("druid_5e_manager.recalc-overall-level");
+pub const DELETE_LEVEL: Selector<u128> = Selector::new("druid_5e_manager.delete-level");
+pub const SET_ABILITY_SCORE: Selector<(AbilityScoreType, u8)> = Selector::new("druid_5e_manager.set-ability-score");
 
 pub struct Delegate {
 	// TODO: Just replace with Option<PathBuf>
@@ -58,7 +59,9 @@ impl AppDelegate<CharacterState> for Delegate {
 			Handled::Yes
 		} else if cmd.is(SET_PROFICIENCY_BONUS) {
 			if let Some(p) = cmd.get(SET_PROFICIENCY_BONUS) {
-				data.proficiency_bonus.set(SharedDataItem::U16(*p));
+				data.proficiency_bonus = *p;
+				data.ability_scores.for_each_mut(|a_s, _| a_s.proficiency_bonus = *p);
+				data.skills.for_each_mut(|sk, _| sk.proficiency_bonus = *p);
 			}
 
 			Handled::Yes
@@ -83,6 +86,13 @@ impl AppDelegate<CharacterState> for Delegate {
 			todo!(); // TODO: If it is even possible
 
 			#[allow(unused)]
+			Handled::Yes
+		} else if cmd.is(SET_ABILITY_SCORE) {
+			if let Some((as_type, score)) = cmd.get(SET_ABILITY_SCORE) {
+				data.ability_scores.for_each_mut(|a_s, _| if a_s.score_type == *as_type { a_s.score = *score });
+				data.skills.for_each_mut(|sk, _| if sk.score_type == *as_type { sk.score = *score });
+			}
+
 			Handled::Yes
 	 	} else {
 			println!("Unhandled command: {:?}", cmd);

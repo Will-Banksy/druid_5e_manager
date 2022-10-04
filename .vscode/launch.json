@@ -7,15 +7,15 @@
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "Debug executable 'druid_play'",
+			"name": "Debug executable 'druid_5e_manager'",
 			"cargo": {
 				"args": [
 					"build",
-					"--bin=druid_play",
-					"--package=druid_play"
+					"--bin=druid_5e_manager",
+					"--package=druid_5e_manager"
 				],
 				"filter": {
-					"name": "druid_play",
+					"name": "druid_5e_manager",
 					"kind": "bin"
 				}
 			},
@@ -25,16 +25,16 @@
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "Debug unit tests in executable 'druid_play'",
+			"name": "Debug unit tests in executable 'druid_5e_manager'",
 			"cargo": {
 				"args": [
 					"test",
 					"--no-run",
-					"--bin=druid_play",
-					"--package=druid_play"
+					"--bin=druid_5e_manager",
+					"--package=druid_5e_manager"
 				],
 				"filter": {
-					"name": "druid_play",
+					"name": "druid_5e_manager",
 					"kind": "bin"
 				}
 			},
