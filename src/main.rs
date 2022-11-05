@@ -4,18 +4,16 @@ pub mod view;
 pub mod delegate;
 pub mod dnd_rules;
 pub mod assets;
+pub mod env;
 
 use data::{CharacterState};
 use druid::{PlatformError, AppLauncher, WindowDesc};
+use env::config_env_defaults;
 use view::{build_ui, build_app_menu};
 
-// TODO: At some point, add a number selection widget so I don't have to just use valuetextboxes
+// TODO: At some point, add a number selection widget (Spinner) so I don't have to just use valuetextboxes
 
-// TODO: Evaluate whether the pain of trying to get SharedData working flawlessly is worth it
-//       and whether I should just have a fuckload of controllers firing off a fuckload of commands whenever something
-//       that should be shared is changed so it gets changed throughout the whole program
-
-fn main() -> Result<(), PlatformError> {
+fn main() -> Result<(), PlatformError> { // TODO: Popup to confirm exit with unsaved data
 	let state: CharacterState = CharacterState::new();
 
     AppLauncher::with_window(WindowDesc::new(build_ui())
@@ -24,6 +22,7 @@ fn main() -> Result<(), PlatformError> {
 		.menu(build_app_menu)
 	)
 		.delegate(delegate::Delegate::new())
+		.configure_env(|env, _| config_env_defaults(env))
 		.launch(state)?;
 
     Ok(())

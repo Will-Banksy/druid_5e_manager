@@ -4,11 +4,11 @@ use druid::{AppDelegate, DelegateCtx, Target, Command, Env, Handled, commands, F
 
 use crate::{data::{CharacterState, AbilityScoreType}, dnd_rules};
 
-pub const UPDATE_WIDGET_TREE: Selector<()> = Selector::new("druid_5e_manager.update-widget-tree");
-pub const SET_PROFICIENCY_BONUS: Selector<u16> = Selector::new("druid_5e_manager.set-proficiency-bonus");
-pub const RECALC_OVERALL_LEVEL: Selector<()> = Selector::new("druid_5e_manager.recalc-overall-level");
-pub const DELETE_LEVEL: Selector<u128> = Selector::new("druid_5e_manager.delete-level");
-pub const SET_ABILITY_SCORE: Selector<(AbilityScoreType, u8)> = Selector::new("druid_5e_manager.set-ability-score");
+pub const UPDATE_WIDGET_TREE: Selector<()> = Selector::new("druid_5e_manager.command.update-widget-tree");
+pub const SET_PROFICIENCY_BONUS: Selector<u16> = Selector::new("druid_5e_manager.command.set-proficiency-bonus");
+pub const RECALC_OVERALL_LEVEL: Selector<()> = Selector::new("druid_5e_manager.command.recalc-overall-level");
+pub const DELETE_LEVEL: Selector<u128> = Selector::new("druid_5e_manager.command.delete-level");
+pub const SET_ABILITY_SCORE: Selector<(AbilityScoreType, u8)> = Selector::new("druid_5e_manager.command.set-ability-score");
 
 pub struct Delegate {
 	// TODO: Just replace with Option<PathBuf>

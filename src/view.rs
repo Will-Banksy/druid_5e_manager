@@ -1,32 +1,33 @@
 pub mod controllers;
 
-use druid::{Widget, WidgetExt, TextAlignment, Menu, MenuItem, Env, WindowId, FileDialogOptions, commands, PaintCtx, Color, RenderContext, SysMods, theme, EventCtx};
+use druid::{Widget, WidgetExt, TextAlignment, Menu, MenuItem, Env, WindowId, FileDialogOptions, commands, PaintCtx, Color, RenderContext, SysMods, theme, EventCtx, KeyOrValue};
 use druid::widget::{Label, Flex, TextBox, List, Painter, CrossAxisAlignment, Checkbox, Button};
 
-use crate::delegate;
+use crate::{delegate, env};
 use crate::dnd_rules::modifier;
 use crate::formatter::NumberFormatter;
 use crate::data::{CharacterState, AbilityScore, AbilityScoreType, Skill, Level};
 
-// TODO: Should really put all this shit in the Env
-const TEXT_SIZE_TITLE: f64 = 28.0;
-const TEXT_SIZE_H1: f64 = 20.0;
+fn painter_background<T>(col: impl Into<KeyOrValue<Color>>) -> Painter<T> {
+	let col = col.into();
+	Painter::new(move |ctx: &mut PaintCtx, _data: &_, env: &Env| {
+		let bounds = ctx.size().to_rect();
+		let colour: Color = match &col {
+			KeyOrValue::Concrete(c) => c.clone(),
+			KeyOrValue::Key(k) => env.get(k)
+		};
+		ctx.fill(bounds.to_rounded_rect(env.get(druid::theme::TEXTBOX_BORDER_RADIUS)), &colour);
+	})
+}
 
-const STRENGTH_COLOUR: Color = Color::Rgba32(0x421c1cff);
-const DEXTERITY_COLOUR: Color = Color::Rgba32(0x2a5639ff);
-const CONSTITUTION_COLOUR: Color = Color::Rgba32(0x4e351bff);
-const INTELLIGENCE_COLOUR: Color = Color::Rgba32(0x264063ff);
-const WISDOM_COLOUR: Color = Color::Rgba32(0x4c5644ff);
-const CHARISMA_COLOUR: Color = Color::Rgba32(0x5a2139ff);
-
-fn color_for(score_type: AbilityScoreType, _env: &Env) -> Color { // TODO: Decide: Do I use AS-specific colours or just dark background
+fn color_for(score_type: AbilityScoreType, env: &Env) -> Color {
 	match score_type {
-		AbilityScoreType::Strength => STRENGTH_COLOUR,
-		AbilityScoreType::Dexterity => DEXTERITY_COLOUR,
-		AbilityScoreType::Constitution => CONSTITUTION_COLOUR,
-		AbilityScoreType::Intelligence => INTELLIGENCE_COLOUR,
-		AbilityScoreType::Wisdom => WISDOM_COLOUR,
-		AbilityScoreType::Charisma => CHARISMA_COLOUR
+		AbilityScoreType::Strength => env.get(env::THEME_COL_ABILITY_STRENGTH),
+		AbilityScoreType::Dexterity => env.get(env::THEME_COL_ABILITY_DEXTERITY),
+		AbilityScoreType::Constitution => env.get(env::THEME_COL_ABILITY_CONSTITUTION),
+		AbilityScoreType::Intelligence => env.get(env::THEME_COL_ABILITY_INTELLIGENCE),
+		AbilityScoreType::Wisdom => env.get(env::THEME_COL_ABILITY_WISDOM),
+		AbilityScoreType::Charisma => env.get(env::THEME_COL_ABILITY_CHARISMA)
 	}
 	// env.get(theme::BACKGROUND_DARK)
 }
@@ -65,32 +66,31 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 				.with_flex_child(
 					TextBox::new()
 						.with_placeholder("Character Name")
-						.with_text_size(TEXT_SIZE_TITLE)
+						.with_text_size(env::THEME_SIZE_TITLE)
 						.lens(CharacterState::name).expand_width(), 0.75
 				)
 				.with_default_spacer()
 				.with_flex_child(
 					TextBox::new()
 						.with_placeholder("Race")
-						// .with_text_size(TEXT_SIZE_H1)
 						.lens(CharacterState::race).expand_width(), 0.25
 				)
 				.with_default_spacer()
 				.with_child(
 					Label::new(|data: &u16, _env: &_| {
 						format!("Level: {}", data)
-					}).lens(CharacterState::level)//.controller(controllers::CharacterLevelController)
+					}).lens(CharacterState::level)
 				)
 				.with_default_spacer()
 				.with_child(
 					Label::new(|data: &u16, _env: &_| {
 						format!("Proficiency Bonus: {}", data)
-					}).lens(CharacterState::proficiency_bonus)//.then(SharedData::U16_LENS))
+					}).lens(CharacterState::proficiency_bonus)
 				)
 		)
 		.with_default_spacer()
 		.with_child(
-			Flex::row()
+			Flex::row() // TODO: UI improvements. Maybe encompass entire list in black with border light separators and a label in front? Also needs hor scroll
 				.with_child(
 					List::new(|| {
 						level()
@@ -109,97 +109,165 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 		.with_default_spacer()
 		.with_child(
 			Flex::row()
-				.with_child(
+				.with_child( // COLUMN 1
 					Flex::column()
 						.with_child(
-							Label::new("Ability Scores").with_text_size(TEXT_SIZE_H1)
+							Label::new("ABILITY SCORES")
 						)
 						.with_default_spacer()
 						.with_child(
 							List::new(|| {
 								ability_score()
 							})
-							.with_spacing(10.0)
-							.fix_width(100.0)
-							.lens(CharacterState::ability_scores)
+								.with_spacing(druid::theme::WIDGET_PADDING_VERTICAL)
+								.lens(CharacterState::ability_scores)
+								.expand_width()
 						)
+						.padding(env::THEME_INSETS)
+						.background(painter_background(druid::theme::BACKGROUND_DARK))
+						.fix_width(128.0)
 				)
 				.with_default_spacer()
-				.with_flex_child(
+				.with_flex_child( // COLUMN 2
 					Flex::column()
-						.with_child(
-							Label::new("Saving Throws").with_text_size(TEXT_SIZE_H1)
+						.with_child( // SAVING THROWS
+							Flex::column()
+								.with_child(
+									Label::new("SAVING THROWS")
+								)
+								.with_default_spacer()
+								.with_child(
+									List::new(|| {
+										saving_throw()
+									})
+									.lens(CharacterState::ability_scores)
+								)
+								.padding(env::THEME_INSETS)
+								.background(painter_background(druid::theme::BACKGROUND_DARK))
 						)
 						.with_default_spacer()
-						.with_child(
-							List::new(|| {
-								saving_throw()
-							})
-							.lens(CharacterState::ability_scores)
+						.with_child( // SKILLS
+							Flex::column()
+								.with_child(
+									Label::new("SKILLS")
+								)
+								.with_default_spacer()
+								.with_child(
+									List::new(|| {
+										skill()
+									})
+									.lens(CharacterState::skills)
+								)
+								.padding(env::THEME_INSETS)
+								.background(painter_background(druid::theme::BACKGROUND_DARK))
 						)
-						.with_default_spacer()
-						.with_child(
-							Label::new("Skills").with_text_size(TEXT_SIZE_H1)
-						)
-						.with_default_spacer()
-						.with_child(
-							List::new(|| {
-								skill()
-							})
-							.lens(CharacterState::skills)
-						)
-						.cross_axis_alignment(CrossAxisAlignment::Start),
+						.cross_axis_alignment(CrossAxisAlignment::Fill),
 						1.0
 				)
 				.with_default_spacer()
-				.with_flex_child(
+				.with_child( // COLUMN 3
 					Flex::column()
-						.with_child(
-							Label::new("Health Points")
-								.with_text_size(TEXT_SIZE_H1)
+						.with_child( // HEALTH POINTS
+							Flex::column()
+								.with_child(
+									Label::new("HEALTH POINTS")
+								)
+								.with_default_spacer()
+								.with_child(
+									Flex::row()
+										.with_child(
+											TextBox::new()
+												.with_text_alignment(TextAlignment::Center)
+												.with_text_size(env::THEME_SIZE_H1)
+												.with_formatter(NumberFormatter::new())
+												.fix_width(46.0)
+												.lens(CharacterState::hp)
+										)
+										.with_child(
+											Label::new("/")
+										)
+										.with_child(
+											TextBox::new()
+												.with_text_alignment(TextAlignment::Center)
+												.with_formatter(NumberFormatter::new())
+												.fix_width(36.0)
+												.lens(CharacterState::hp_max)
+										)
+										.with_default_spacer()
+										.with_child(
+											Label::new("Temp: ")
+										)
+										.with_child(
+											TextBox::new()
+												.with_text_alignment(TextAlignment::Center)
+												.with_formatter(NumberFormatter::new())
+												.fix_width(36.0)
+												.lens(CharacterState::temp_hp)
+										)
+								)
+								.with_default_spacer()
+								.with_child(
+									Flex::row()
+										.with_child(Label::new("Hit Dice")) // TODO: Hit dice
+								)
+								.padding(env::THEME_INSETS)
+								.background(painter_background(druid::theme::BACKGROUND_DARK))
 						)
 						.with_default_spacer()
-						.with_child(
-							Flex::row()
+						.with_child( // ARMOUR CLASS
+							Flex::column()
 								.with_child(
-									TextBox::new()
-										.with_text_alignment(TextAlignment::Center)
-										.with_text_size(TEXT_SIZE_H1)
-										.with_formatter(NumberFormatter::new())
-										.fix_width(46.0)
-										.lens(CharacterState::hp)
+									Label::new("ARMOUR CLASS")
+										.center()
 								)
+								.with_default_spacer()
 								.with_child(
-									Label::new("/")
+									Flex::row()
+										.with_flex_child(
+											Flex::column()
+												.with_child(
+													TextBox::new()
+														.with_placeholder("Armour")
+														.lens(CharacterState::equip_armour)
+												)
+												.with_default_spacer()
+												.with_child(
+													TextBox::new()
+														.with_placeholder("Shield")
+														.lens(CharacterState::equip_shield)
+												)
+												.cross_axis_alignment(CrossAxisAlignment::Fill)
+												.expand_width(),
+											1.0
+										)
+										.with_default_spacer()
+										.with_child(
+											Flex::column()
+												.with_child(
+													TextBox::new()
+														.with_text_alignment(TextAlignment::Center)
+														.with_text_size(env::THEME_SIZE_H1)
+														.with_formatter(NumberFormatter::new())
+														.fix_width(46.0)
+														.lens(CharacterState::ac)
+												)
+												.with_default_spacer()
+												.with_child(Label::new("AC"))
+										)
 								)
+								.with_default_spacer()
 								.with_child(
-									TextBox::new()
-										.with_text_alignment(TextAlignment::Center)
-										.with_formatter(NumberFormatter::new())
-										.fix_width(36.0)
-										.lens(CharacterState::hp_max)
+									Checkbox::new("Stealth Disadvantage")
+										.lens(CharacterState::stealth_disadvantage)
 								)
+								.cross_axis_alignment(CrossAxisAlignment::Fill)
+								.padding(env::THEME_INSETS)
+								.background(painter_background(druid::theme::BACKGROUND_DARK))
 						)
-						.with_default_spacer()
-						.with_child(
-							Flex::row()
-								.with_child(
-									Label::new("Temp: ")
-								)
-								.with_child(
-									TextBox::new()
-										.with_text_alignment(TextAlignment::Center)
-										.with_formatter(NumberFormatter::new())
-										.fix_width(36.0)
-										.lens(CharacterState::temp_hp)
-								)
-						),
-					1.0
+						.cross_axis_alignment(CrossAxisAlignment::Fill)
+						.fix_width(220.)
 				)
 				.cross_axis_alignment(CrossAxisAlignment::Start)
-				// .fix_width(500.0)
-				.align_left()
-				// .debug_paint_layout()
 		)
 		.padding(6.0)
 		.scroll()
@@ -224,7 +292,7 @@ fn ability_score() -> impl Widget<AbilityScore> {
 						} else {
 							format!("+{}", modifier)
 						}
-					}).with_text_size(TEXT_SIZE_H1).center().fix_width(48.0)
+					}).with_text_size(env::THEME_SIZE_H1).center().fix_width(48.0)
 				)
 				.with_spacer(4.0)
 				.with_child(
@@ -233,7 +301,8 @@ fn ability_score() -> impl Widget<AbilityScore> {
 						.with_formatter(NumberFormatter::new())
 						.lens(AbilityScore::score)
 						.center()
-						.fix_width(48.0).controller(controllers::DataUpdateAlertController::new(delegate::SET_ABILITY_SCORE, |sel, data: AbilityScore| sel.with((data.score_type, data.score))))
+						.fix_width(48.0)
+						.controller(controllers::DataUpdateAlertController::new(delegate::SET_ABILITY_SCORE, |sel, data: AbilityScore| sel.with((data.score_type, data.score))))
 				)
 		)
 		.padding((6.0, 8.0))
@@ -278,7 +347,6 @@ fn saving_throw() -> impl Widget<AbilityScore> {
 			let colour = color_for(data.score_type, env);
 			ctx.fill(bounds.to_rounded_rect(env.get(druid::theme::TEXTBOX_BORDER_RADIUS)), &colour);
 		}))
-		// .debug_paint_layout()
 }
 
 fn skill() -> impl Widget<Skill> {
@@ -300,11 +368,6 @@ fn skill() -> impl Widget<Skill> {
 			})
 		)
 		.with_child(
-			// Label::raw().lens(Constant::<RichText>({
-			// 	let mut rtb = RichTextBuilder::new();
-			// 	rtb.push("Int").style(FontStyle::Italic);
-			// 	rtb.build()
-			// }))
 			Label::new(|data: &AbilityScoreType, _env: &_| {
 				format!("({})", format!("{:?}", data)[..3].to_string())
 			}).with_font(theme::UI_FONT_ITALIC)
@@ -358,10 +421,6 @@ fn level() -> impl Widget<Level> {
 				// 	ctx.draw_image(&image, (Point::new(0.0, 0.0), Point::new(16.0, 16.0)), InterpolationMode::Bilinear);
 				// }))
 		)
-		.padding((8.0, 6.0))
-		.background(Painter::new(|ctx: &mut PaintCtx, _data: &Level, env: &Env| {
-			let bounds = ctx.size().to_rect();
-			let colour: Color = env.get(theme::BACKGROUND_DARK);
-			ctx.fill(bounds.to_rounded_rect(env.get(druid::theme::TEXTBOX_BORDER_RADIUS)), &colour);
-		}))
+		.padding(env::THEME_INSETS)
+		.background(painter_background(druid::theme::BACKGROUND_DARK))
 }
