@@ -2,7 +2,7 @@ use std::{path::{PathBuf}, fs::{File, self}, io::Write};
 
 use druid::{AppDelegate, DelegateCtx, Target, Command, Env, Handled, commands, FileDialogOptions, Selector, widget::ListIter};
 
-use crate::{data::{CharacterState, AbilityScoreType}, dnd_rules};
+use crate::{data::{CharacterState, AbilityScoreType}, rules};
 
 pub const UPDATE_WIDGET_TREE: Selector<()> = Selector::new("druid_5e_manager.command.update-widget-tree");
 pub const SET_PROFICIENCY_BONUS: Selector<u16> = Selector::new("druid_5e_manager.command.set-proficiency-bonus");
@@ -23,11 +23,13 @@ impl Delegate {
 			save_url: PathBuf::new()
 		}
 	}
+
+	// TODO: Move saving file to a function. DRY
 }
 
 // TODO: On app close save file?
 impl AppDelegate<CharacterState> for Delegate {
-	fn command(&mut self, ctx: &mut DelegateCtx, _target: Target, cmd: &Command, data: &mut CharacterState, _env: &Env) -> Handled {
+	fn command(&mut self, ctx: &mut DelegateCtx, target: Target, cmd: &Command, data: &mut CharacterState, _env: &Env) -> Handled {
 		if cmd.is(commands::SAVE_FILE_AS) {
 			if let Some(path) = cmd.get(commands::SAVE_FILE_AS) {
 				self.has_path = true;
@@ -43,8 +45,7 @@ impl AppDelegate<CharacterState> for Delegate {
 				let mut file = File::create(self.save_url.as_path()).unwrap(); // TODO: Error handling
 				writeln!(&mut file, "{}", data.serialize()).unwrap();
 			} else {
-				// println!("Submitted command");
-				ctx.submit_command(commands::SHOW_SAVE_PANEL.with(FileDialogOptions::new()).to(_target));
+				ctx.submit_command(commands::SHOW_SAVE_PANEL.with(FileDialogOptions::new()).to(target));
 			}
 
 			Handled::Yes
@@ -69,7 +70,7 @@ impl AppDelegate<CharacterState> for Delegate {
 			let level_sum = data.levels.iter().fold(0, |val, level_struct| val as u16 + level_struct.level as u16);
 			data.level = level_sum;
 
-			ctx.submit_command(SET_PROFICIENCY_BONUS.with(dnd_rules::proficiency_bonus_for(data.level)));
+			ctx.submit_command(SET_PROFICIENCY_BONUS.with(rules::proficiency_bonus_for(data.level)));
 
 			Handled::Yes
 		} else if cmd.is(DELETE_LEVEL) {
@@ -82,8 +83,8 @@ impl AppDelegate<CharacterState> for Delegate {
 			ctx.submit_command(RECALC_OVERALL_LEVEL);
 
 			Handled::Yes
-		} else if cmd.is(UPDATE_WIDGET_TREE) {
-			todo!(); // TODO: If it is even possible
+		} else if cmd.is(UPDATE_WIDGET_TREE) { // TODO: If it is even possible
+			println!("This feature is unimplemented because I am not sure whether it is possible and I don't really remember why I wanted it in the first place");
 
 			#[allow(unused)]
 			Handled::Yes

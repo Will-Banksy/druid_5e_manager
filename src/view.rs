@@ -1,12 +1,15 @@
 pub mod controllers;
+pub mod widgets;
 
 use druid::{Widget, WidgetExt, TextAlignment, Menu, MenuItem, Env, WindowId, FileDialogOptions, commands, PaintCtx, Color, RenderContext, SysMods, theme, EventCtx, KeyOrValue};
-use druid::widget::{Label, Flex, TextBox, List, Painter, CrossAxisAlignment, Checkbox, Button};
+use druid::widget::{Label, Flex, TextBox, List, Painter, CrossAxisAlignment, Checkbox, Button, MainAxisAlignment};
 
 use crate::{delegate, env};
-use crate::dnd_rules::modifier;
+use crate::rules::modifier;
 use crate::formatter::NumberFormatter;
 use crate::data::{CharacterState, AbilityScore, AbilityScoreType, Skill, Level};
+
+use self::widgets::ratio_split::RatioSplit;
 
 fn painter_background<T>(col: impl Into<KeyOrValue<Color>>) -> Painter<T> {
 	let col = col.into();
@@ -128,7 +131,7 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 						.fix_width(128.0)
 				)
 				.with_default_spacer()
-				.with_flex_child( // COLUMN 2
+				.with_child( // COLUMN 2
 					Flex::column()
 						.with_child( // SAVING THROWS
 							Flex::column()
@@ -161,8 +164,8 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 								.padding(env::THEME_INSETS)
 								.background(painter_background(druid::theme::BACKGROUND_DARK))
 						)
-						.cross_axis_alignment(CrossAxisAlignment::Fill),
-						1.0
+						.cross_axis_alignment(CrossAxisAlignment::Fill)
+						.fix_width(456.0)
 				)
 				.with_default_spacer()
 				.with_child( // COLUMN 3
@@ -193,7 +196,7 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 												.fix_width(36.0)
 												.lens(CharacterState::hp_max)
 										)
-										.with_default_spacer()
+										// .with_default_spacer()
 										.with_child(
 											Label::new("Temp: ")
 										)
@@ -264,11 +267,67 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 								.padding(env::THEME_INSETS)
 								.background(painter_background(druid::theme::BACKGROUND_DARK))
 						)
+						.with_default_spacer()
+						.with_child(
+							Flex::column()
+								.with_child(Label::new("SPEEDS"))
+								.with_default_spacer()
+								.with_child(
+									RatioSplit::row()
+										.with_child(
+											Flex::column()
+												.with_child(Label::new("Walking"))
+												.with_child(
+													TextBox::new()
+														.with_text_alignment(TextAlignment::Center) // TODO: For this and subsequent valuetextboxes - Add formatting with units. Implement Formatter::format_for_editing in maybe NumberFormatter for this
+														.with_formatter(NumberFormatter::new())
+														.lens(CharacterState::speed)
+												)
+												.with_default_spacer()
+												.with_child(Label::new("Flying"))
+												.with_child(
+													TextBox::new()
+														.with_text_alignment(TextAlignment::Center)
+														.with_formatter(NumberFormatter::new())
+														.lens(CharacterState::speed_fly)
+												)
+												.cross_axis_alignment(CrossAxisAlignment::Start)
+												.expand_width(),
+											0.5
+										)
+										.with_child(
+											Flex::column()
+												.with_child(Label::new("Climbing"))
+												.with_child(
+													TextBox::new()
+														.with_text_alignment(TextAlignment::Center)
+														.with_formatter(NumberFormatter::new())
+														.lens(CharacterState::speed_climb)
+												)
+												.with_default_spacer()
+												.with_child(Label::new("Swimming"))
+												.with_child(
+													TextBox::new()
+														.with_text_alignment(TextAlignment::Center)
+														.with_formatter(NumberFormatter::new())
+														.lens(CharacterState::speed_swim)
+												)
+												.cross_axis_alignment(CrossAxisAlignment::Start)
+												.expand_width(),
+											0.5
+										)
+								)
+								.padding(env::THEME_INSETS)
+								.background(painter_background(druid::theme::BACKGROUND_DARK))
+								// .debug_paint_layout()
+						)
 						.cross_axis_alignment(CrossAxisAlignment::Fill)
 						.fix_width(220.)
 				)
 				.cross_axis_alignment(CrossAxisAlignment::Start)
+				.main_axis_alignment(MainAxisAlignment::Start)
 		)
+		.cross_axis_alignment(CrossAxisAlignment::Fill)
 		.padding(6.0)
 		.scroll()
 		.vertical()

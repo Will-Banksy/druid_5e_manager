@@ -2,14 +2,14 @@ use std::marker::PhantomData;
 
 use druid::{widget::Controller, Widget, Data, UpdateCtx, Env, Selector, Command};
 
-use crate::{data::{CharacterState, Level}, delegate, dnd_rules};
+use crate::{data::{CharacterState, Level}, delegate, rules};
 
 pub struct CharacterLevelController;
 
 impl<W: Widget<CharacterState>> Controller<CharacterState, W> for CharacterLevelController {
 	fn update(&mut self, child: &mut W, ctx: &mut UpdateCtx, old_data: &CharacterState, data: &CharacterState, env: &Env) {
 		if !old_data.level.same(&data.level) {
-			ctx.submit_command(delegate::SET_PROFICIENCY_BONUS.with(dnd_rules::proficiency_bonus_for(data.level)))
+			ctx.submit_command(delegate::SET_PROFICIENCY_BONUS.with(rules::proficiency_bonus_for(data.level)))
 		}
 		child.update(ctx, old_data, data, env)
 	}
