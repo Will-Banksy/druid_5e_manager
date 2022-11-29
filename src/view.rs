@@ -10,6 +10,7 @@ use crate::formatter::NumberFormatter;
 use crate::data::{CharacterState, AbilityScore, AbilityScoreType, Skill, Level};
 
 use self::widgets::ratio_split::RatioSplit;
+use self::widgets::separator::{Separator, CrossAxisSize};
 
 fn painter_background<T>(col: impl Into<KeyOrValue<Color>>) -> Painter<T> {
 	let col = col.into();
@@ -93,11 +94,29 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 		)
 		.with_default_spacer()
 		.with_child(
-			Flex::row() // TODO: UI improvements. Maybe encompass entire list in black with border light separators and a label in front? Also needs hor scroll
+			Flex::row()
+				.with_child(
+					Label::new("LEVELS\n& CLASSES")
+				)
+				.with_default_spacer()
 				.with_child(
 					List::new(|| {
-						level()
-					}).horizontal().with_spacing(10.0).lens(CharacterState::levels)
+						Flex::row() // TODO: This is kinda ugly imo having so many ".with_default_spacer()"s can I neaten it up at all?
+							.with_default_spacer()
+							.with_child(
+								Separator::horizontal()
+									.with_size(1.0)
+									.with_cross_axis_size(CrossAxisSize::Absolute(32.0.into()))
+									.with_colour(druid::theme::BORDER_DARK)
+							)
+							.with_default_spacer()
+							.with_default_spacer()
+							.with_child(
+								level()
+							)
+					}).horizontal()
+						.with_spacing(druid::theme::WIDGET_PADDING_HORIZONTAL)
+						.lens(CharacterState::levels)
 				)
 				.with_default_spacer()
 				.with_child(
@@ -107,7 +126,10 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 							_ctx.submit_command(delegate::RECALC_OVERALL_LEVEL);
 						})
 				)
-				.align_left()
+				.align_left() // This makes the levels bar take up the whole window width
+				.scroll() // TODO: When scrollbar is showing it overlays the widgets a bit - Can I stop this without allocating spare space below the levels that would ruin the lovely clean look of them?
+				.padding(env::THEME_INSETS)
+				.background(painter_background(druid::theme::BACKGROUND_DARK))
 		)
 		.with_default_spacer()
 		.with_child(
@@ -268,7 +290,7 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 								.background(painter_background(druid::theme::BACKGROUND_DARK))
 						)
 						.with_default_spacer()
-						.with_child(
+						.with_child( // SPEEDS
 							Flex::column()
 								.with_child(Label::new("SPEEDS"))
 								.with_default_spacer()
@@ -279,8 +301,8 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 												.with_child(Label::new("Walking"))
 												.with_child(
 													TextBox::new()
-														.with_text_alignment(TextAlignment::Center) // TODO: For this and subsequent valuetextboxes - Add formatting with units. Implement Formatter::format_for_editing in maybe NumberFormatter for this
-														.with_formatter(NumberFormatter::new())
+														.with_text_alignment(TextAlignment::Center)
+														.with_formatter(NumberFormatter::new().with_unit("ft"))
 														.lens(CharacterState::speed)
 												)
 												.with_default_spacer()
@@ -288,7 +310,7 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 												.with_child(
 													TextBox::new()
 														.with_text_alignment(TextAlignment::Center)
-														.with_formatter(NumberFormatter::new())
+														.with_formatter(NumberFormatter::new().with_unit("ft"))
 														.lens(CharacterState::speed_fly)
 												)
 												.cross_axis_alignment(CrossAxisAlignment::Start)
@@ -301,7 +323,7 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 												.with_child(
 													TextBox::new()
 														.with_text_alignment(TextAlignment::Center)
-														.with_formatter(NumberFormatter::new())
+														.with_formatter(NumberFormatter::new().with_unit("ft"))
 														.lens(CharacterState::speed_climb)
 												)
 												.with_default_spacer()
@@ -309,7 +331,7 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 												.with_child(
 													TextBox::new()
 														.with_text_alignment(TextAlignment::Center)
-														.with_formatter(NumberFormatter::new())
+														.with_formatter(NumberFormatter::new().with_unit("ft"))
 														.lens(CharacterState::speed_swim)
 												)
 												.cross_axis_alignment(CrossAxisAlignment::Start)
@@ -317,6 +339,16 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 											0.5
 										)
 								)
+								.padding(env::THEME_INSETS)
+								.background(painter_background(druid::theme::BACKGROUND_DARK))
+								// .debug_paint_layout()
+						)
+						.with_default_spacer()
+						.with_child( // SENSES
+							Flex::column()
+								.with_child(Label::new("SENSES"))
+								.with_default_spacer()
+								// TODO: Some sort of List similar to how levels are done
 								.padding(env::THEME_INSETS)
 								.background(painter_background(druid::theme::BACKGROUND_DARK))
 								// .debug_paint_layout()
@@ -480,6 +512,7 @@ fn level() -> impl Widget<Level> {
 				// 	ctx.draw_image(&image, (Point::new(0.0, 0.0), Point::new(16.0, 16.0)), InterpolationMode::Bilinear);
 				// }))
 		)
-		.padding(env::THEME_INSETS)
-		.background(painter_background(druid::theme::BACKGROUND_DARK))
+		// TODO REMOVE
+		// .padding(env::THEME_INSETS)
+		// .background(painter_background(druid::theme::BACKGROUND_DARK))
 }

@@ -17,20 +17,21 @@ use view::{build_ui, build_app_menu};
 //     Or think of ways in which it can otherwise be done... Perhaps by putting the CharacterState data in the Env although that's an ugly solution
 
 // TODO: [UI/UX] More widgets required
-// At some point, add a number selection widget (Spinner) so I don't have to just use valuetextboxes
-// Also add a widget that contains another widget that enforces a minimum size
+//     At some point, add a number selection widget (Spinner) so I don't have to just use valuetextboxes
+//     Also add a widget that contains another widget that enforces a minimum size
 
 // TODO: [PLATFORMS] Consider platform support/differences and synchronising data
-// Compile it to webassembly to use on web. I also kinda wanna get it working on mobile some day...
-//     I don't think druid has support for mobile outside of web but PWA maybe?
-//     Hm actually how would file management work on web... differently I imagine? Also people don't want to work with files on mobile
-//     Web and mobile might take a bit more thought and work than simply porting to those platforms
-//     A splash screen with a default directory to save characters that displays those characters might work well... if web can do that
-//     As part of web, it'd be helpful for characters to sync between installations... This might be something for far in the future
+//     Compile it to webassembly to use on web. I also kinda wanna get it working on mobile some day...
+//         I don't think druid has support for mobile outside of web but PWA maybe?
+//         Hm actually how would file management work on web... differently I imagine? Also people don't want to work with files on mobile
+//         Web and mobile might take a bit more thought and work than simply porting to those platforms
+//         A splash screen with a default directory to save characters that displays those characters might work well... if web can do that
+//         As part of web, it'd be helpful for characters to sync between installations with cloud storage... This might be something for far in the future
+//             Or maybe use Google Drive or something
 
 // TODO: [FEATURES]
-// Popup to confirm exit with unsaved data
-// Also add a command bar (Ctrl+P/Ctrl+Shift+P to open, Esc to close) to do actions such as "Take Damage", "Add Item", "Deduct Money", "Learn Spell", etc.
+//     Popup to confirm exit with unsaved data
+//     Also add a command bar (Ctrl+P/Ctrl+Shift+P (or maybe Ctrl+K/Ctrl+Shift+K cause on Web Ctrl+P is print) to open, Esc to close) to do actions such as "Take Damage", "Add Item", "Deduct Money", "Learn Spell", etc.
 
 // TODO: [DESIGN] Urgent-ish - I need to decide how things that increase stats are gonna work
 //     E.g. Say we add a feat that increases Str by 1, what should happen?
@@ -44,6 +45,8 @@ use view::{build_ui, build_app_menu};
 // TODO: [DESIGN][UI/UX] Consider how to store Hit Dice, and more broadly how to store things like descriptions of items that are like "does 1d4 + Str piercing damage"
 //     Do we want to insert actual values for stats in there when displaying? Cause that may change what we do here
 //     I think it'd be good ui/ux to do so (along with the expression/stat name ofc)
+
+// TODO: ADD README
 
 fn main() -> Result<(), PlatformError> {
 	let state: CharacterState = CharacterState::new();
