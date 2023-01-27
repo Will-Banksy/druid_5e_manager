@@ -5,8 +5,9 @@ pub mod delegate;
 pub mod rules;
 pub mod assets;
 pub mod env;
+pub mod dice;
 
-use data::{CharacterState};
+use data::character_state::CharacterState;
 use druid::{PlatformError, AppLauncher, WindowDesc};
 use env::config_env_defaults;
 use view::{build_ui, build_app_menu};
@@ -14,7 +15,8 @@ use view::{build_ui, build_app_menu};
 // TODO: Move all this shit to github issues lmao it's just clutter here and maybe with issues, the few random people stumbling across my repository will be able to give some thoughts wishful thinking though that probably is
 
 // TODO: [DESIGN] Remove duplicate data and use other methods to have a variable-length list of widgets that can still access certain data from containing data
-//     Or think of ways in which it can otherwise be done... Perhaps by putting the CharacterState data in the Env although that's an ugly solution
+//     Or think of ways in which it can otherwise be done... Perhaps by putting the CharacterState data in the Env although that's an ugly solution imo. But maybe it isn't actually
+//         But it is only one-way
 
 // TODO: [UI/UX] More widgets required
 //     At some point, add a number selection widget (Spinner) so I don't have to just use valuetextboxes
@@ -27,11 +29,14 @@ use view::{build_ui, build_app_menu};
 //         Web and mobile might take a bit more thought and work than simply porting to those platforms
 //         A splash screen with a default directory to save characters that displays those characters might work well... if web can do that
 //         As part of web, it'd be helpful for characters to sync between installations with cloud storage... This might be something for far in the future
-//             Or maybe use Google Drive or something
+//             Or maybe use Google Drive or something. Maybe still for far future though
+//                 https://crates.io/crates/google-drive
+//                 https://developers.google.com/drive/api/guides/api-specific-auth
 
 // TODO: [FEATURES]
 //     Popup to confirm exit with unsaved data
 //     Also add a command bar (Ctrl+P/Ctrl+Shift+P (or maybe Ctrl+K/Ctrl+Shift+K cause on Web Ctrl+P is print) to open, Esc to close) to do actions such as "Take Damage", "Add Item", "Deduct Money", "Learn Spell", etc.
+//     Status bar with icon button for showing command bar
 
 // TODO: [DESIGN] Urgent-ish - I need to decide how things that increase stats are gonna work
 //     E.g. Say we add a feat that increases Str by 1, what should happen?
@@ -45,6 +50,9 @@ use view::{build_ui, build_app_menu};
 // TODO: [DESIGN][UI/UX] Consider how to store Hit Dice, and more broadly how to store things like descriptions of items that are like "does 1d4 + Str piercing damage"
 //     Do we want to insert actual values for stats in there when displaying? Cause that may change what we do here
 //     I think it'd be good ui/ux to do so (along with the expression/stat name ofc)
+//     Idea: Display the dice equation below a textbox, and have the textbox display values (e.g. substituting Str + Prof for the value of the Strength ability score + proficiency bonus) but when editing the textbox it will display Str
+//         Or if a textbox isn't a good idea, maybe have a button which switches representations (maybe in status bar, switches representations for entire application)
+//         Or, y'know, just display like "1d4 + 4(Str + Prof)" but nahh seems dumb and not nice
 
 // TODO: ADD README
 
@@ -53,7 +61,7 @@ fn main() -> Result<(), PlatformError> {
 
 	AppLauncher::with_window(WindowDesc::new(build_ui())
 		.title("D&D Character Manager")
-		.window_size((1200.0, 820.0))
+		.window_size((1400.0, 820.0))
 		.menu(build_app_menu)
 	)
 		.delegate(delegate::Delegate::new())

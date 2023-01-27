@@ -1,14 +1,17 @@
 pub mod controllers;
 pub mod widgets;
+pub mod components;
 
-use druid::{Widget, WidgetExt, TextAlignment, Menu, MenuItem, Env, WindowId, FileDialogOptions, commands, PaintCtx, Color, RenderContext, SysMods, theme, EventCtx, KeyOrValue};
+use druid::{Widget, WidgetExt, TextAlignment, Menu, MenuItem, Env, WindowId, FileDialogOptions, commands, PaintCtx, Color, RenderContext, SysMods, EventCtx, KeyOrValue};
 use druid::widget::{Label, Flex, TextBox, List, Painter, CrossAxisAlignment, Checkbox, Button, MainAxisAlignment};
 
 use crate::{delegate, env};
-use crate::rules::modifier;
 use crate::formatter::NumberFormatter;
-use crate::data::{CharacterState, AbilityScore, AbilityScoreType, Skill, Level};
+use crate::data::character_state::{CharacterState, AbilityScoreType, Level, Sense, Condition};
 
+use self::components::common::small_input_label;
+use self::components::unique::{ability_score, saving_throw, skill, level};
+use self::controllers::DataUpdateAlertController;
 use self::widgets::ratio_split::RatioSplit;
 use self::widgets::separator::{Separator, CrossAxisSize};
 
@@ -16,24 +19,26 @@ fn painter_background<T>(col: impl Into<KeyOrValue<Color>>) -> Painter<T> {
 	let col = col.into();
 	Painter::new(move |ctx: &mut PaintCtx, _data: &_, env: &Env| {
 		let bounds = ctx.size().to_rect();
-		let colour: Color = match &col {
-			KeyOrValue::Concrete(c) => c.clone(),
-			KeyOrValue::Key(k) => env.get(k)
+		let colour: Color = if ctx.is_hot() && false { Color::Rgba32(0x777700ff) } else {
+			match &col {
+				KeyOrValue::Concrete(c) => c.clone(),
+				KeyOrValue::Key(k) => env.get(k)
+			}
 		};
 		ctx.fill(bounds.to_rounded_rect(env.get(druid::theme::TEXTBOX_BORDER_RADIUS)), &colour);
 	})
 }
 
-fn color_for(score_type: AbilityScoreType, env: &Env) -> Color {
-	match score_type {
-		AbilityScoreType::Strength => env.get(env::THEME_COL_ABILITY_STRENGTH),
-		AbilityScoreType::Dexterity => env.get(env::THEME_COL_ABILITY_DEXTERITY),
-		AbilityScoreType::Constitution => env.get(env::THEME_COL_ABILITY_CONSTITUTION),
-		AbilityScoreType::Intelligence => env.get(env::THEME_COL_ABILITY_INTELLIGENCE),
-		AbilityScoreType::Wisdom => env.get(env::THEME_COL_ABILITY_WISDOM),
-		AbilityScoreType::Charisma => env.get(env::THEME_COL_ABILITY_CHARISMA)
-	}
-	// env.get(theme::BACKGROUND_DARK)
+fn color_for(score_type: AbilityScoreType, env: &Env) -> Color { // TODO: Remove?
+	// match score_type {
+	// 	AbilityScoreType::Strength => env.get(env::THEME_COL_ABILITY_STRENGTH),
+	// 	AbilityScoreType::Dexterity => env.get(env::THEME_COL_ABILITY_DEXTERITY),
+	// 	AbilityScoreType::Constitution => env.get(env::THEME_COL_ABILITY_CONSTITUTION),
+	// 	AbilityScoreType::Intelligence => env.get(env::THEME_COL_ABILITY_INTELLIGENCE),
+	// 	AbilityScoreType::Wisdom => env.get(env::THEME_COL_ABILITY_WISDOM),
+	// 	AbilityScoreType::Charisma => env.get(env::THEME_COL_ABILITY_CHARISMA)
+	// }
+	env.get(druid::theme::WINDOW_BACKGROUND_COLOR)
 }
 
 pub fn build_app_menu(_window_id: Option<WindowId>, _state: &CharacterState, _env: &Env) -> Menu<CharacterState> {
@@ -55,11 +60,11 @@ pub fn build_app_menu(_window_id: Option<WindowId>, _state: &CharacterState, _en
 				MenuItem::new("Open").command(commands::SHOW_OPEN_PANEL.with(FileDialogOptions::new()))
 				.hotkey(SysMods::Cmd, "o")
 			)
-			.separator()
-			.entry(
-				MenuItem::new("[Dev] Update Widget Tree")
-				.command(delegate::UPDATE_WIDGET_TREE)
-			)
+			// .separator()
+			// .entry(
+			// 	MenuItem::new("[Dev] Update Widget Tree")
+			// 	.command(delegate::UPDATE_WIDGET_TREE)
+			// )
 	)
 }
 
@@ -75,9 +80,17 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 				)
 				.with_default_spacer()
 				.with_flex_child(
-					TextBox::new()
-						.with_placeholder("Race")
-						.lens(CharacterState::race).expand_width(), 0.25
+					Flex::column()
+						.with_child(
+							small_input_label(Label::new("RACE"))
+						)
+						.with_child(
+							TextBox::new()
+								.with_placeholder("E.g. Tiefling")
+								.lens(CharacterState::race).expand_width()
+						)
+						.cross_axis_alignment(CrossAxisAlignment::Start),
+					0.25
 				)
 				.with_default_spacer()
 				.with_child(
@@ -134,7 +147,7 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 		.with_default_spacer()
 		.with_child(
 			Flex::row()
-				.with_child( // COLUMN 1
+				.with_child( // COLUMN 1 - ABILITY SCORES
 					Flex::column()
 						.with_child(
 							Label::new("ABILITY SCORES")
@@ -153,7 +166,7 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 						.fix_width(128.0)
 				)
 				.with_default_spacer()
-				.with_child( // COLUMN 2
+				.with_child( // COLUMN 2 - SAVING THROWS, SKILLS
 					Flex::column()
 						.with_child( // SAVING THROWS
 							Flex::column()
@@ -187,10 +200,10 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 								.background(painter_background(druid::theme::BACKGROUND_DARK))
 						)
 						.cross_axis_alignment(CrossAxisAlignment::Fill)
-						.fix_width(456.0)
+						.fix_width(400.0)
 				)
 				.with_default_spacer()
-				.with_child( // COLUMN 3
+				.with_child( // COLUMN 3 - HIT POINTS & HIT DICE, ARMOUR CLASS, SPEEDS, SENSES
 					Flex::column()
 						.with_child( // HEALTH POINTS
 							Flex::column()
@@ -251,14 +264,20 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 										.with_flex_child(
 											Flex::column()
 												.with_child(
+													small_input_label(Label::new("ARMOUR"))
+												)
+												.with_child(
 													TextBox::new()
-														.with_placeholder("Armour")
+														.with_placeholder("E.g. Studded Leather")
 														.lens(CharacterState::equip_armour)
 												)
 												.with_default_spacer()
 												.with_child(
+													small_input_label(Label::new("SHIELD"))
+												)
+												.with_child(
 													TextBox::new()
-														.with_placeholder("Shield")
+														.with_placeholder("E.g. Wooden Shield")
 														.lens(CharacterState::equip_shield)
 												)
 												.cross_axis_alignment(CrossAxisAlignment::Fill)
@@ -292,13 +311,15 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 						.with_default_spacer()
 						.with_child( // SPEEDS
 							Flex::column()
-								.with_child(Label::new("SPEEDS"))
+								.with_child(Label::new("SPEEDS")) // FIXME Why is this differently horizontally positioned than SENSES??? I think this is the wrong one but idk
 								.with_default_spacer()
 								.with_child(
 									RatioSplit::row()
 										.with_child(
 											Flex::column()
-												.with_child(Label::new("Walking"))
+												.with_child(
+													small_input_label(Label::new("WALKING"))
+												)
 												.with_child(
 													TextBox::new()
 														.with_text_alignment(TextAlignment::Center)
@@ -306,7 +327,9 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 														.lens(CharacterState::speed)
 												)
 												.with_default_spacer()
-												.with_child(Label::new("Flying"))
+												.with_child(
+													small_input_label(Label::new("FLYING"))
+												)
 												.with_child(
 													TextBox::new()
 														.with_text_alignment(TextAlignment::Center)
@@ -319,7 +342,9 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 										)
 										.with_child(
 											Flex::column()
-												.with_child(Label::new("Climbing"))
+												.with_child(
+													small_input_label(Label::new("CLIMBING"))
+												)
 												.with_child(
 													TextBox::new()
 														.with_text_alignment(TextAlignment::Center)
@@ -327,7 +352,9 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 														.lens(CharacterState::speed_climb)
 												)
 												.with_default_spacer()
-												.with_child(Label::new("Swimming"))
+												.with_child(
+													small_input_label(Label::new("SWIMMING"))
+												)
 												.with_child(
 													TextBox::new()
 														.with_text_alignment(TextAlignment::Center)
@@ -349,12 +376,99 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 								.with_child(Label::new("SENSES"))
 								.with_default_spacer()
 								// TODO: Some sort of List similar to how levels are done
+								.with_child(
+									Button::new("+")
+										.on_click(|_ctx: &mut EventCtx, data: &mut CharacterState, _env: &_| {
+											data.senses.push_back(Sense::new("".into(), 0));
+										})
+								)
+								.with_default_spacer()
+								.with_child(
+									List::new(|| {
+										Flex::row()
+											.with_flex_child(
+												TextBox::new()
+													.lens(Sense::name)
+													.expand_width(),
+													1.0
+											)
+											.with_default_spacer()
+											.with_child(
+												TextBox::new()
+													.with_formatter(NumberFormatter::new().with_unit("ft"))
+													.lens(Sense::distance)
+													.fix_width(46.0)
+											)
+											.with_default_spacer()
+											.with_child(
+												Button::new("🗑")
+													.on_click(|ctx: &mut EventCtx, data: &mut Sense, _env: &_| {
+														ctx.submit_command(delegate::DELETE_SENSE.with(data.uuid))
+													})
+											)
+									})
+									.lens(CharacterState::senses)
+								)
 								.padding(env::THEME_INSETS)
 								.background(painter_background(druid::theme::BACKGROUND_DARK))
 								// .debug_paint_layout()
 						)
 						.cross_axis_alignment(CrossAxisAlignment::Fill)
 						.fix_width(220.)
+				)
+				.with_default_spacer()
+				.with_child( // COLUMN 4 - CONDITIONS, PROFICIENCIES & LANGUAGES
+					Flex::column()
+						.with_child( // CONDITIONS
+							Flex::column()
+								.with_child(
+									Label::new("CONDITIONS")
+								)
+								.with_default_spacer()
+								.with_child(
+									Button::new("+")
+										.on_click(|_ctx: &mut EventCtx, data: &mut CharacterState, _env: &_| {
+											data.conditions.push_back(Condition::new(0));
+										})
+								)
+								.with_default_spacer()
+								.with_child(
+									List::new(|| {
+										Flex::row()
+											.with_default_spacer()
+											.with_child(
+												TextBox::new()
+													.with_formatter(NumberFormatter::new().with_unit("ft"))
+													.lens(Condition::speed_increase)
+													.fix_width(46.0)
+											)
+											.with_default_spacer()
+											.with_child(
+												Button::new("🗑")
+													.on_click(|ctx: &mut EventCtx, data: &mut Condition, _env: &_| {
+														ctx.submit_command(delegate::DELETE_CONDITION.with(data.uuid))
+													})
+											)
+									})
+									.controller(DataUpdateAlertController::new(delegate::UPDATE_FROM_CONDITIONS, |selector, _| selector.into()))
+									.lens(CharacterState::conditions)
+								)
+								// )
+								.padding(env::THEME_INSETS)
+								.background(painter_background(druid::theme::BACKGROUND_DARK))
+						)
+						.with_default_spacer()
+						.with_child( // PROFICIENCIES * LANGUAGES
+							Flex::column()
+								.with_child(
+									Label::new("PROFICIENCIES & LANGUAGES")
+								)
+								// TODO: Need like a tag edit box - Like editing tags on Github or properties in Notion. Autocomplete? From what sources? And how to store in application state?
+								.padding(env::THEME_INSETS)
+								.background(painter_background(druid::theme::BACKGROUND_DARK))
+						)
+						.cross_axis_alignment(CrossAxisAlignment::Fill)
+						.fix_width(400.0)
 				)
 				.cross_axis_alignment(CrossAxisAlignment::Start)
 				.main_axis_alignment(MainAxisAlignment::Start)
@@ -363,156 +477,5 @@ pub fn build_ui() -> impl Widget<CharacterState> {
 		.padding(6.0)
 		.scroll()
 		.vertical()
-}
-
-fn ability_score() -> impl Widget<AbilityScore> {
-	Flex::row()
-		.with_child(
-			Flex::column()
-				.with_child(
-					Label::new(|data: &AbilityScore, _env: &_| {
-						format!("{:?}", data.score_type)
-					}).center()
-				)
-				.with_spacer(4.0)
-				.with_child(
-					Label::new(|data: &AbilityScore, _env: &_| {
-						let modifier = modifier(data.score, false, false, 0);
-						if modifier < 0 {
-							format!("{}", modifier.to_string())
-						} else {
-							format!("+{}", modifier)
-						}
-					}).with_text_size(env::THEME_SIZE_H1).center().fix_width(48.0)
-				)
-				.with_spacer(4.0)
-				.with_child(
-					TextBox::new()
-						.with_text_alignment(TextAlignment::Center)
-						.with_formatter(NumberFormatter::new())
-						.lens(AbilityScore::score)
-						.center()
-						.fix_width(48.0)
-						.controller(controllers::DataUpdateAlertController::new(delegate::SET_ABILITY_SCORE, |sel, data: AbilityScore| sel.with((data.score_type, data.score))))
-				)
-		)
-		.padding((6.0, 8.0))
-		.center()
-		.fix_width(100.0)
-		.background(Painter::new(|ctx: &mut PaintCtx, data: &AbilityScore, env: &Env| {
-			let bounds = ctx.size().to_rect();
-			let colour = color_for(data.score_type, env);
-			ctx.fill(bounds.to_rounded_rect(env.get(druid::theme::TEXTBOX_BORDER_RADIUS)), &colour);
-		}))
-}
-
-fn saving_throw() -> impl Widget<AbilityScore> {
-	Flex::row()
-		.with_child(
-			Label::new(|data: &AbilityScore, _env: &_| {
-				let modifier = modifier(data.score, data.saving_proficiency, false, data.proficiency_bonus);
-				if modifier < 0 {
-					format!("{}", modifier.to_string())
-				} else {
-					format!("+{}", modifier)
-				}
-			})
-		)
-		.with_default_spacer()
-		.with_child(
-			Label::new(|data: &AbilityScore, _env: &_| {
-				format!("{:?}", data.score_type)
-			})
-		)
-		.with_default_spacer()
-		.with_flex_spacer(1.0)
-		.with_child(
-			Checkbox::new("Prof.").lens(AbilityScore::saving_proficiency)
-		)
-		.with_child(
-			Checkbox::new("Adv.").lens(AbilityScore::saving_advantage)
-		)
-		.padding((4.0, 2.0))
-		.background(Painter::new(|ctx: &mut PaintCtx, data: &AbilityScore, env: &Env| {
-			let bounds = ctx.size().to_rect();
-			let colour = color_for(data.score_type, env);
-			ctx.fill(bounds.to_rounded_rect(env.get(druid::theme::TEXTBOX_BORDER_RADIUS)), &colour);
-		}))
-}
-
-fn skill() -> impl Widget<Skill> {
-	Flex::row()
-		.with_child(
-			Label::new(|data: &Skill, _env: &_| {
-				let modifier = modifier(data.score, data.proficiency, data.expertise, data.proficiency_bonus);
-				if modifier < 0 {
-					format!("{}", modifier.to_string())
-				} else {
-					format!("+{}", modifier)
-				}
-			})
-		)
-		.with_default_spacer()
-		.with_child(
-			Label::new(|data: &Skill, _env: &_| {
-				format!("{}", data.skill_type)
-			})
-		)
-		.with_child(
-			Label::new(|data: &AbilityScoreType, _env: &_| {
-				format!("({})", format!("{:?}", data)[..3].to_string())
-			}).with_font(theme::UI_FONT_ITALIC)
-			.lens(Skill::score_type)
-		)
-		.with_default_spacer()
-		.with_flex_spacer(1.0)
-		.with_child(
-			Checkbox::new("Prof.").lens(Skill::proficiency)
-		)
-		.with_child(
-			Checkbox::new("Ex.").lens(Skill::expertise).disabled_if(|data: &Skill, _env: &_| !data.proficiency)
-		)
-		.with_child(
-			Checkbox::new("Adv.").lens(Skill::advantage)
-		)
-		.padding((4.0, 2.0))
-		.background(Painter::new(|ctx: &mut PaintCtx, data: &Skill, env: &Env| {
-			let bounds = ctx.size().to_rect();
-			let colour = color_for(data.score_type, env);
-			ctx.fill(bounds.to_rounded_rect(env.get(druid::theme::TEXTBOX_BORDER_RADIUS)), &colour);
-		}))
-}
-
-fn level() -> impl Widget<Level> {
-	Flex::row()
-		.with_child(
-			TextBox::new()
-				.with_placeholder("Class")
-				.lens(Level::name)
-		)
-		.with_default_spacer()
-		.with_child(
-			Label::new("Level: ")
-		)
-		.with_child(
-			TextBox::new()
-				.with_formatter(NumberFormatter::new())
-				.lens(Level::level)
-				.fix_width(32.0)
-				.controller(controllers::LevelsController)
-		)
-		.with_default_spacer()
-		.with_child(
-			Button::new("🗑")
-				.on_click(|ctx: &mut EventCtx, data: &mut Level, _env: &_| {
-					ctx.submit_command(delegate::DELETE_LEVEL.with(data.uuid))
-				})
-				// .background(Painter::new(|ctx: &mut PaintCtx, _data: &Level, env: &Env| {
-				// 	let image = ctx.make_image(16, 16, &assets::ASSETIMAGE_IMG_BIN, druid::piet::ImageFormat::Rgb).unwrap();
-				// 	ctx.draw_image(&image, (Point::new(0.0, 0.0), Point::new(16.0, 16.0)), InterpolationMode::Bilinear);
-				// }))
-		)
-		// TODO REMOVE
-		// .padding(env::THEME_INSETS)
-		// .background(painter_background(druid::theme::BACKGROUND_DARK))
+		// .controller(DataUpdateAlertController::new(druid::Selector::<()>::new("data update"), |s, _| s.into())) // NOTE: DEBUG
 }

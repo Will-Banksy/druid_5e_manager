@@ -2,13 +2,16 @@ use std::{path::{PathBuf}, fs::{File, self}, io::Write};
 
 use druid::{AppDelegate, DelegateCtx, Target, Command, Env, Handled, commands, FileDialogOptions, Selector, widget::ListIter};
 
-use crate::{data::{CharacterState, AbilityScoreType}, rules};
+use crate::{data::character_state::{CharacterState, AbilityScoreType}, rules};
 
 pub const UPDATE_WIDGET_TREE: Selector<()> = Selector::new("druid_5e_manager.command.update-widget-tree");
 pub const SET_PROFICIENCY_BONUS: Selector<u16> = Selector::new("druid_5e_manager.command.set-proficiency-bonus");
 pub const RECALC_OVERALL_LEVEL: Selector<()> = Selector::new("druid_5e_manager.command.recalc-overall-level");
 pub const DELETE_LEVEL: Selector<u128> = Selector::new("druid_5e_manager.command.delete-level");
 pub const SET_ABILITY_SCORE: Selector<(AbilityScoreType, u8)> = Selector::new("druid_5e_manager.command.set-ability-score");
+pub const DELETE_SENSE: Selector<u128> = Selector::new("druid_5e_manager.command.delete-sense");
+pub const DELETE_CONDITION: Selector<u128> = Selector::new("druid_5e_manager.command.delete-condition");
+pub const UPDATE_FROM_CONDITIONS: Selector<()> = Selector::new("druid_5e_manager.command.update-from-conditions");
 
 pub struct Delegate {
 	// TODO: Just replace with Option<PathBuf>
@@ -95,7 +98,27 @@ impl AppDelegate<CharacterState> for Delegate {
 			}
 
 			Handled::Yes
-	 	} else {
+	 	} else if cmd.is(DELETE_SENSE) {
+			if let Some(uuid) = cmd.get(DELETE_SENSE) {
+				if let Some(i) = data.senses.iter().enumerate().find_map(|(i, s)| if s.uuid == *uuid { Some(i) } else { None }) {
+					data.senses.remove(i);
+				}
+			}
+
+			Handled::Yes
+	 	} else if cmd.is(DELETE_CONDITION) {
+			if let Some(uuid) = cmd.get(DELETE_CONDITION) {
+				if let Some(i) = data.conditions.iter().enumerate().find_map(|(i, s)| if s.uuid == *uuid { Some(i) } else { None }) {
+					data.conditions.remove(i);
+				}
+			}
+
+			Handled::Yes
+	 	} else if cmd.is(UPDATE_FROM_CONDITIONS) {
+			data.speed = data.conditions.iter().rfold(0, |acc, condition| acc + condition.speed_increase);
+
+			Handled::Yes
+		} else {
 			println!("Unhandled command: {:?}", cmd);
 			Handled::No
 		}

@@ -8,8 +8,12 @@ pub const THEME_COL_ABILITY_WISDOM: Key<Color> = Key::new("druid_5e_manager.env.
 pub const THEME_COL_ABILITY_CHARISMA: Key<Color> = Key::new("druid_5e_manager.env.theme-col-ability-charisma");
 
 pub const THEME_SIZE_TITLE: Key<f64> = Key::new("druid_5e_manager.env.theme-size-title");
+/// Primary header text size
 pub const THEME_SIZE_H1: Key<f64> = Key::new("druid_5e_manager.env.theme-size-h1");
+/// Text size for small labels of inputs
+pub const THEME_SIZE_SMALL_LABEL: Key<f64> = Key::new("druid_5e_manager.env.theme-size-label");
 
+/// Theme padding around widgets
 pub const THEME_INSETS: Key<Insets> = Key::new("druid_5e_manager.env.theme-insets");
 
 pub fn config_env_defaults(env: &mut Env) {
@@ -22,6 +26,7 @@ pub fn config_env_defaults(env: &mut Env) {
 
 	env.set(THEME_SIZE_TITLE, 28.0);
 	env.set(THEME_SIZE_H1, 20.0);
+	env.set(THEME_SIZE_SMALL_LABEL, 12.0);
 
 	env.set(THEME_INSETS, Insets::uniform_xy(8.0, 6.0));
 
@@ -43,5 +48,9 @@ fn env_defaults_override_colours(env: &mut Env) { // TODO: Perfect this, e.g. co
 	env.set(druid::theme::BACKGROUND_DARK, Color::Rgba32(0x000000ff));
 	env.set(druid::theme::BACKGROUND_LIGHT, Color::Rgba32(0x181818ff));
 	env.set(druid::theme::WINDOW_BACKGROUND_COLOR, Color::Rgba32(0x0e0e0eff));
+
 	env.set(druid::theme::BORDER_DARK, Color::Rgba32(0x2f2f2fff));
+
+	env.set(druid::theme::FOREGROUND_LIGHT, Color::Rgba32(0xd2d2d2ff));
+	env.set(druid::theme::FOREGROUND_DARK, Color::Rgba32(0x6c6c6cff));
 }

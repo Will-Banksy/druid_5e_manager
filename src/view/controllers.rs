@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use druid::{widget::Controller, Widget, Data, UpdateCtx, Env, Selector, Command};
 
-use crate::{data::{CharacterState, Level}, delegate, rules};
+use crate::{data::character_state::{CharacterState, Level}, delegate, rules};
 
 pub struct CharacterLevelController;
 
@@ -46,3 +46,22 @@ impl<S, F, T: Data, W: Widget<T>> Controller<T, W> for DataUpdateAlertController
 		child.update(ctx, old_data, data, env)
 	}
 }
+
+// TODO: Remove?
+// #[derive(Default)]
+// pub struct HoverInvalidateController {
+// 	added_called: bool
+// }
+
+// impl<T, W: Widget<T>> Controller<T, W> for HoverInvalidateController {
+// 	fn lifecycle( &mut self, _: &mut W, ctx: &mut druid::LifeCycleCtx, event: &druid::LifeCycle, _: &T, _: &Env) {
+// 		if let LifeCycle::WidgetAdded = event {
+// 			self.added_called = true;
+// 		}
+// 		if self.added_called {
+// 			if let LifeCycle::HotChanged(_) = event {
+// 				ctx.request_paint();
+// 			}
+// 		}
+// 	}
+// }

@@ -3,7 +3,6 @@ use druid::{widget::Axis, Widget, KeyOrValue, Color, Size, RenderContext};
 pub enum CrossAxisSize {
 	Fraction(KeyOrValue<f64>),
 	Absolute(KeyOrValue<f64>)
-
 }
 
 pub struct Separator {
@@ -14,7 +13,7 @@ pub struct Separator {
 }
 
 impl Separator {
-	fn new() -> Self {
+	pub fn horizontal() -> Self {
 		Self {
 			direction: Axis::Horizontal,
 			size: 2.0.into(),
@@ -23,17 +22,10 @@ impl Separator {
 		}
 	}
 
-	pub fn horizontal() -> Self {
-		Self {
-			direction: Axis::Horizontal,
-			..Self::new()
-		}
-	}
-
 	pub fn vertical() -> Self {
 		Self {
 			direction: Axis::Vertical,
-			..Self::new()
+			..Self::horizontal()
 		}
 	}
 
