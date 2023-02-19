@@ -19,3 +19,5 @@ foreach source sources [
 		]
 	]
 ]
+
+; NOTE Just realised could I not do this with Rust macros? Ahhh maybe not tbf...
