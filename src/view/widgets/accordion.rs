@@ -138,22 +138,8 @@ impl<T> TitleBarContainer<T> {
 	}
 }
 
-// impl<T> Deref for TitleBarContainer<T> {
-// 	type Target = WidgetPod<T, Box<dyn Widget<T>>>;
-
-// 	fn deref(&self) -> &Self::Target {
-// 		&self.title_bar
-// 	}
-// }
-
-// impl<T> DerefMut for TitleBarContainer<T> {
-// 	fn deref_mut(&mut self) -> &mut Self::Target {
-// 		&mut self.title_bar
-// 	}
-// }
-
 impl<T> Widget<T> for TitleBarContainer<T> where T: Clone + Data {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) { // TODO: Really need to improve this to behave more like a button
         self.title_bar.event(ctx, event, data, env);
 
 		if !ctx.is_handled() {

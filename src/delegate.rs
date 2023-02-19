@@ -115,7 +115,8 @@ impl AppDelegate<CharacterState> for Delegate {
 
 			Handled::Yes
 	 	} else if cmd.is(UPDATE_FROM_CONDITIONS) {
-			data.speed = data.conditions.iter().rfold(0, |acc, condition| acc + condition.speed_increase);
+			// TODO: Actually implement this properly, calculating increases to a base value which will be set by the race, or the race is an increase to a base value of 0
+			data.speed = data.conditions.iter().fold(0, |acc, condition| acc + condition.speed_increase);
 
 			Handled::Yes
 		} else {

@@ -1,4 +1,5 @@
 pub mod character_state;
+pub mod source_raw;
 
 use druid::{Lens, Data};
 

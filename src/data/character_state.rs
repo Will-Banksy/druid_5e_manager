@@ -183,12 +183,14 @@ impl CharacterState {
 		}
 	}
 
+	// NOTE: RON doesn't support u128 so can't be used
 	pub fn serialize(&self) -> String {
 		// ron::to_string(self).expect("Serialisation of CharacterState failed - This indicates a bug")
 		serde_json::to_string(self)
 			.expect("Serialisation of CharacterState failed - This indicates a bug")
 	}
 
+	// NOTE: RON doesn't support u128 so can't be used
 	pub fn deserialize(serialized: &str) -> Self {
 		// ron::from_str(serialized).expect("Deserialisation of RON to CharacterState failed - The file might've failed to save correctly, or been edited externally, or created with an incompatible version of this program")
 		serde_json::from_str(serialized)

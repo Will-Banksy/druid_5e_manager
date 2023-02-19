@@ -3,7 +3,6 @@ pub mod data;
 pub mod view;
 pub mod delegate;
 pub mod rules;
-pub mod assets;
 pub mod env;
 pub mod dice;
 
@@ -53,6 +52,17 @@ use view::{build_ui, build_app_menu};
 //     Idea: Display the dice equation below a textbox, and have the textbox display values (e.g. substituting Str + Prof for the value of the Strength ability score + proficiency bonus) but when editing the textbox it will display Str
 //         Or if a textbox isn't a good idea, maybe have a button which switches representations (maybe in status bar, switches representations for entire application)
 //         Or, y'know, just display like "1d4 + 4(Str + Prof)" but nahh seems dumb and not nice
+
+// TODO: [FEATURES] Add the ability to convert between units, and use different units
+
+// TODO: [DESIGN][FEATURES]
+//     Start designing a content management system, and sort of design the character manager around that
+//     Like, the app opens on to a content management GUI, where you can manage and browse your content including standard stuff and homebrew stuff
+//         You have the capabilities to like create new homebrew sources, and add items/creatures/spells/etc
+//     It will also be necessary to be able to access this functionality from the character screen (Modal dialog?)
+//     The format of things like characters and stuff will need to be considered. Are there any examples of how characters are stored somewhere?
+//         Like, what fields the character struct has?
+//         NOTE: Serde's skip attribute might be useful for this https://serde.rs/field-attrs.html#skip
 
 // TODO: ADD README
 

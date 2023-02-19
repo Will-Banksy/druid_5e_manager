@@ -46,22 +46,3 @@ impl<S, F, T: Data, W: Widget<T>> Controller<T, W> for DataUpdateAlertController
 		child.update(ctx, old_data, data, env)
 	}
 }
-
-// TODO: Remove?
-// #[derive(Default)]
-// pub struct HoverInvalidateController {
-// 	added_called: bool
-// }
-
-// impl<T, W: Widget<T>> Controller<T, W> for HoverInvalidateController {
-// 	fn lifecycle( &mut self, _: &mut W, ctx: &mut druid::LifeCycleCtx, event: &druid::LifeCycle, _: &T, _: &Env) {
-// 		if let LifeCycle::WidgetAdded = event {
-// 			self.added_called = true;
-// 		}
-// 		if self.added_called {
-// 			if let LifeCycle::HotChanged(_) = event {
-// 				ctx.request_paint();
-// 			}
-// 		}
-// 	}
-// }
