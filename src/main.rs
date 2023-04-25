@@ -52,6 +52,7 @@ use view::{build_ui, build_app_menu};
 //     Idea: Display the dice equation below a textbox, and have the textbox display values (e.g. substituting Str + Prof for the value of the Strength ability score + proficiency bonus) but when editing the textbox it will display Str
 //         Or if a textbox isn't a good idea, maybe have a button which switches representations (maybe in status bar, switches representations for entire application)
 //         Or, y'know, just display like "1d4 + 4(Str + Prof)" but nahh seems dumb and not nice
+//     Alternatively, just display the "1d4 + Str" but show the actual values on hover?
 
 // TODO: [FEATURES] Add the ability to convert between units, and use different units
 
