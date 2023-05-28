@@ -27,7 +27,7 @@ impl Money {
 	}
 
 	/// Parses an amount of money from an ASCII string, e.g. "100 gp"
-	pub fn parse(money_str: &str) -> Money {
+	pub fn parse(money_str: &str) -> Money { // TODO: Probably should make this better... Maybe return some sort of null value if the money_str doesn't conform to expectations
 		let money_chars: Vec<char> = money_str.chars().collect();
 
 		let mut money_val: u64 = 0;

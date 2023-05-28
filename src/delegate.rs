@@ -120,7 +120,7 @@ impl AppDelegate<CharacterState> for Delegate {
 
 			Handled::Yes
 		} else {
-			println!("Unhandled command: {:?}", cmd);
+			// println!("Unhandled command: {:?}", cmd);
 			Handled::No
 		}
 	}

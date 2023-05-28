@@ -36,7 +36,6 @@ mod source_data {
 	}
 }
 
-use im::Vector;
 use serde_json::from_str;
 
 use crate::data::{internal::{InternalSource, armour::{Armour, ArmourCategory}, item::{Rarity, Money}, feat::Feat}, sources::srd::source_data::SourceArmour, character_state::AbilityScoreType};

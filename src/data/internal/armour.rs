@@ -1,7 +1,10 @@
+use druid::Data;
+
 use crate::data::character_state::AbilityScoreType;
 
 use super::item::{Rarity, Money};
 
+#[derive(Data, Clone)]
 pub enum ArmourCategory {
 	NoArmour,
 	LightArmour,
@@ -12,6 +15,7 @@ pub enum ArmourCategory {
 	Custom(String)
 }
 
+#[derive(Data, Clone)]
 pub struct Armour {
 	pub name: String,
 	pub category: ArmourCategory,

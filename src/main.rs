@@ -1,4 +1,3 @@
-pub mod formatter;
 pub mod data;
 pub mod view;
 pub mod delegate;

@@ -106,7 +106,7 @@ impl<T> Widget<T> for RatioSplit<T> where T: Data {
 						max_major,
 						0.0,
 					);
-					self.widgets[i].widget.set_origin(ctx, data, env, origin.into());
+					self.widgets[i].widget.set_origin(ctx, origin.into());
 					max_major += child_size.width + gap_size;
 					if max_minor < child_size.height {
 						max_minor = child_size.height;
@@ -120,7 +120,7 @@ impl<T> Widget<T> for RatioSplit<T> where T: Data {
 						0.0,
 						max_major,
 					);
-					self.widgets[i].widget.set_origin(ctx, data, env, origin.into());
+					self.widgets[i].widget.set_origin(ctx, origin.into());
 					max_major += child_size.height + gap_size;
 					if max_minor < child_size.width {
 						max_minor = child_size.width;

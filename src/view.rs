@@ -1,17 +1,18 @@
 pub mod controllers;
 pub mod widgets;
 pub mod components;
+pub mod formatter;
 
 use druid::{Widget, WidgetExt, TextAlignment, Menu, MenuItem, Env, WindowId, FileDialogOptions, commands, PaintCtx, Color, RenderContext, SysMods, EventCtx, KeyOrValue};
 use druid::widget::{Label, Flex, TextBox, List, Painter, CrossAxisAlignment, Checkbox, Button, MainAxisAlignment};
 
 use crate::{delegate, env};
-use crate::formatter::NumberFormatter;
 use crate::data::character_state::{CharacterState, AbilityScoreType, Level, Sense, Condition};
 
 use self::components::common::small_input_label;
 use self::components::unique::{ability_score, saving_throw, skill, level};
 use self::controllers::DataUpdateAlertController;
+use self::formatter::NumberFormatter;
 use self::widgets::ratio_split::RatioSplit;
 use self::widgets::separator::{Separator, CrossAxisSize};
 

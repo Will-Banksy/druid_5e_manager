@@ -1,6 +1,6 @@
 use druid::{Widget, widget::{Flex, Label, TextBox, Painter, Checkbox, Button}, WidgetExt, TextAlignment, Env, PaintCtx, RenderContext, EventCtx};
 
-use crate::{data::character_state::{AbilityScore, Skill, AbilityScoreType, Level}, rules::modifier, env, formatter::NumberFormatter, view::{controllers, color_for, widgets::{accordion::Accordion, hover::Hover}}, delegate};
+use crate::{data::character_state::{AbilityScore, Skill, AbilityScoreType, Level}, rules::modifier, env, view::{controllers, color_for, widgets::{accordion::Accordion, hover::Hover}, formatter::NumberFormatter}, delegate};
 
 use super::common::small_input_label;
 

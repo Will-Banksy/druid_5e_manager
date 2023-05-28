@@ -78,7 +78,7 @@ impl<T> Widget<T> for Accordion<T> where T: Clone + Data {
 		if let Some(content) = &mut self.content {
 			if self.expanded {
 				let title_size = self.title_bar.layout(ctx, &bc.loosen(), data, env);
-				self.title_bar.set_origin(ctx, data, env, (0.0, 0.0).into());
+				self.title_bar.set_origin(ctx, (0.0, 0.0).into());
 
 				let content_bc = {
 					if self.direction == Axis::Horizontal {
@@ -97,11 +97,11 @@ impl<T> Widget<T> for Accordion<T> where T: Clone + Data {
 						(0.0, title_size.height).into()
 					}
 				};
-				content.set_origin(ctx, data, env, content_origin);
+				content.set_origin(ctx, content_origin);
 				return Size::new(content_origin.x + content_size.width, content_origin.y + content_size.height);
 			} else {
 				let title_size = self.title_bar.layout(ctx, &bc.loosen(), data, env);
-				self.title_bar.set_origin(ctx, data, env, (0.0, 0.0).into());
+				self.title_bar.set_origin(ctx, (0.0, 0.0).into());
 
 				content.layout(ctx, &BoxConstraints::new(Size::ZERO, Size::ZERO), data, env);
 				let content_origin = {
@@ -111,12 +111,12 @@ impl<T> Widget<T> for Accordion<T> where T: Clone + Data {
 						(0.0, title_size.height).into()
 					}
 				};
-				content.set_origin(ctx, data, env, content_origin);
+				content.set_origin(ctx, content_origin);
 				return title_size;
 			}
 		}
 		let size = self.title_bar.layout(ctx, &bc.loosen(), data, env);
-		self.title_bar.set_origin(ctx, data, env, (0.0, 0.0).into());
+		self.title_bar.set_origin(ctx, (0.0, 0.0).into());
 		size
 	}
 
