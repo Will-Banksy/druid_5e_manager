@@ -4,8 +4,9 @@ pub mod delegate;
 pub mod rules;
 pub mod env;
 pub mod dice;
+pub mod utils;
 
-use data::character_state::CharacterState;
+use data::AppData;
 use druid::{PlatformError, AppLauncher, WindowDesc};
 use env::config_env_defaults;
 use view::{build_ui, build_app_menu};
@@ -67,7 +68,8 @@ use view::{build_ui, build_app_menu};
 // TODO: ADD README
 
 fn main() -> Result<(), PlatformError> {
-	let state: CharacterState = CharacterState::new();
+	let mut state: AppData = AppData::new();
+	state.init_sources();
 
 	AppLauncher::with_window(WindowDesc::new(build_ui())
 		.title("D&D Character Manager")

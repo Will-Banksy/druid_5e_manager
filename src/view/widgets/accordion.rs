@@ -1,6 +1,6 @@
 use druid::{WidgetPod, Widget, EventCtx, Event, Env, LifeCycleCtx, LifeCycle, UpdateCtx, Data, widget::Axis, Size, Selector, BoxConstraints};
 
-const ACCORDION_TOGGLE: Selector<()> = Selector::new("druid_5e_manager.notifications.accordion-toggle");
+pub const ACCORDION_TOGGLE: Selector<()> = Selector::new("druid_5e_manager.notifications.accordion-toggle");
 
 pub struct Accordion<T> {
 	title_bar: WidgetPod<T, Box<dyn Widget<T>>>,
@@ -16,7 +16,7 @@ struct TitleBarContainer<T> {
 impl<T> Accordion<T> where T: Data {
 	pub fn horizontal(title_bar: impl Widget<T> + 'static) -> Self {
 		Self {
-			title_bar: WidgetPod::new(TitleBarContainer::new(title_bar)).boxed(),
+			title_bar: WidgetPod::new(title_bar).boxed(),
 			content: None,
 			expanded: false,
 			direction: Axis::Horizontal
@@ -128,40 +128,4 @@ impl<T> Widget<T> for Accordion<T> where T: Clone + Data {
 			}
 		}
 	}
-}
-
-impl<T> TitleBarContainer<T> {
-	fn new(title_bar: impl Widget<T> + 'static) -> Self {
-		Self {
-			title_bar: WidgetPod::new(title_bar).boxed()
-		}
-	}
-}
-
-impl<T> Widget<T> for TitleBarContainer<T> where T: Clone + Data {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) { // TODO: Really need to improve this to behave more like a button
-        self.title_bar.event(ctx, event, data, env);
-
-		if !ctx.is_handled() {
-			if let Event::MouseUp(_) = event {
-				ctx.submit_notification(ACCORDION_TOGGLE);
-			}
-		}
-    }
-
-    fn lifecycle(&mut self, ctx: &mut LifeCycleCtx, event: &LifeCycle, data: &T, env: &Env) {
-        self.title_bar.lifecycle(ctx, event, data, env);
-    }
-
-    fn update(&mut self, ctx: &mut UpdateCtx, _: &T, data: &T, env: &Env) {
-        self.title_bar.update(ctx, data, env);
-    }
-
-    fn layout(&mut self, ctx: &mut druid::LayoutCtx, bc: &druid::BoxConstraints, data: &T, env: &Env) -> Size {
-        self.title_bar.layout(ctx, bc, data, env)
-    }
-
-    fn paint(&mut self, ctx: &mut druid::PaintCtx, data: &T, env: &Env) {
-        self.title_bar.paint(ctx, data, env);
-    }
 }

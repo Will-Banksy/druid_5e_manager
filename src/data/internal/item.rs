@@ -58,6 +58,7 @@ impl Money {
 				}
 				i += 1;
 			}
+			i += 1;
 		}
 
 		money

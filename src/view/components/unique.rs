@@ -1,6 +1,6 @@
 use druid::{Widget, widget::{Flex, Label, TextBox, Painter, Checkbox, Button}, WidgetExt, TextAlignment, Env, PaintCtx, RenderContext, EventCtx};
 
-use crate::{data::character_state::{AbilityScore, Skill, AbilityScoreType, Level}, rules::modifier, env, view::{controllers, color_for, widgets::{accordion::Accordion, hover::Hover}, formatter::NumberFormatter}, delegate};
+use crate::{data::character_state::{AbilityScore, Skill, AbilityScoreType, Level}, rules::modifier, env, view::{controllers, widgets::{accordion::{Accordion, ACCORDION_TOGGLE}, hover::Hover}, formatter::NumberFormatter, character_ui::color_for}, delegate};
 
 use super::common::small_input_label;
 
@@ -91,6 +91,9 @@ pub fn saving_throw() -> impl Widget<AbilityScore> {
 					}))
 				)
 				.padding((4.0, 2.0))
+				.on_click(|ctx: &mut EventCtx, _: &mut _, _: &_| {
+					ctx.submit_notification(ACCORDION_TOGGLE)
+				})
 		).with_content(
 			Flex::row()
 				.with_flex_spacer(1.0)
@@ -168,6 +171,9 @@ pub fn skill() -> impl Widget<Skill> {
 					}))
 				)
 				.padding((4.0, 2.0))
+				.on_click(|ctx: &mut EventCtx, _: &mut _, _: &_| {
+					ctx.submit_notification(ACCORDION_TOGGLE)
+				})
 		).with_content(
 			Flex::row()
 				.with_flex_spacer(1.0)

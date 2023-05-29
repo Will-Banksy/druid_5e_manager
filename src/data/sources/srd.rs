@@ -38,7 +38,7 @@ mod source_data {
 
 use serde_json::from_str;
 
-use crate::data::{internal::{InternalSource, armour::{Armour, ArmourCategory}, item::{Rarity, Money}, feat::Feat}, sources::srd::source_data::SourceArmour, character_state::AbilityScoreType};
+use crate::data::{internal::{InternalSource, armour::{Armour, ArmourCategory}, item::{Rarity, Money}, feat::Feat, SourceCategory}, sources::srd::source_data::SourceArmour, character_state::AbilityScoreType};
 
 use self::source_data::SourceFeat;
 
@@ -58,13 +58,18 @@ impl Source for SrdSource {
 
 		let armours = from_str::<Vec<SourceArmour>>(include_srd_file!("armor.json")).unwrap_or(Vec::new()).into_iter().map(|src_armour| {
 			to_internal_armour(src_armour)
-		});
+		}).collect();
 
 		let feats = from_str::<Vec<SourceFeat>>(include_srd_file!("feats.json")).unwrap_or(Vec::new()).into_iter().map(|src_feat| {
 			to_internal_feat(src_feat)
-		});
+		}).collect();
 
-		todo!()
+		InternalSource {
+			name: "System Reference Document".into(),
+			category: SourceCategory::Core,
+			armours,
+			feats
+		}
     }
 }
 
@@ -123,7 +128,7 @@ fn to_internal_armour(src_armour: SourceArmour) -> Armour {
 		plus_mod_max: src_armour.plus_max,
 		plus_flat_mod: src_armour.plus_flat_mod,
 		cost: src_armour.cost.and_then(|cost| Some(Money::parse(&cost))),
-		weight: todo!(), // TODO
+		weight: 0, // TODO
 		stealth_disadvantage: src_armour.stealth_disadvantage,
 	}
 }
