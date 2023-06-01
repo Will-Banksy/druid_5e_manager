@@ -123,19 +123,19 @@ impl AppDelegate<AppData> for Delegate {
 
 			Handled::Yes
 	 	} else if cmd.is(NAV_SWITCH_TO_CHARACTER) {
-			let new_nav_dest = Arc::make_mut(&mut data.transitive_app_state.nav_state);
+			let new_nav_dest = Arc::make_mut(&mut data.uistate.nav_state);
 			// new_nav_dest.pop();
 			new_nav_dest.push(NavState::NavDestCharacter);
-			data.transitive_app_state.nav_state = Arc::new(new_nav_dest.clone());
+			data.uistate.nav_state = Arc::new(new_nav_dest.clone());
 
 			println!("Switched to character");
 
 			Handled::Yes
 	 	} else if cmd.is(NAV_SWITCH_TO_SOURCES) {
-			let new_nav_dest = Arc::make_mut(&mut data.transitive_app_state.nav_state);
+			let new_nav_dest = Arc::make_mut(&mut data.uistate.nav_state);
 			// new_nav_dest.pop();
 			new_nav_dest.push(NavState::NavDestSourceManager);
-			data.transitive_app_state.nav_state = Arc::new(new_nav_dest.clone());
+			data.uistate.nav_state = Arc::new(new_nav_dest.clone());
 
 			println!("Switched to sources");
 

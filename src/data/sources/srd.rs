@@ -38,7 +38,7 @@ mod source_data {
 
 use serde_json::from_str;
 
-use crate::data::{internal::{InternalSource, armour::{Armour, ArmourCategory}, item::{Rarity, Money}, feat::Feat, SourceCategory}, sources::srd::source_data::SourceArmour, character_state::AbilityScoreType};
+use crate::data::{internal::{InternalSource, armour::{Armour, ArmourCategory}, item::{Rarity, Money}, feat::Feat, SourceCategory, SourceContentItem, SourceContentCollection, SourceContentType}, sources::srd::source_data::SourceArmour, character_state::AbilityScoreType};
 
 use self::source_data::SourceFeat;
 
@@ -57,18 +57,20 @@ impl Source for SrdSource {
 		// https://blog.logrocket.com/json-and-rust-why-serde_json-is-the-top-choice/
 
 		let armours = from_str::<Vec<SourceArmour>>(include_srd_file!("armor.json")).unwrap_or(Vec::new()).into_iter().map(|src_armour| {
-			to_internal_armour(src_armour)
+			SourceContentItem::ArmourItem(to_internal_armour(src_armour))
 		}).collect();
 
 		let feats = from_str::<Vec<SourceFeat>>(include_srd_file!("feats.json")).unwrap_or(Vec::new()).into_iter().map(|src_feat| {
-			to_internal_feat(src_feat)
+			SourceContentItem::FeatItem(to_internal_feat(src_feat))
 		}).collect();
 
 		InternalSource {
 			name: "System Reference Document".into(),
 			category: SourceCategory::Core,
-			armours,
-			feats
+			content: im::vector![
+				SourceContentCollection::new(SourceContentType::ArmourType, armours),
+				SourceContentCollection::new(SourceContentType::FeatType, feats),
+			]
 		}
     }
 }

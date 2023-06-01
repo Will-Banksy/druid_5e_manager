@@ -9,10 +9,6 @@ pub struct Accordion<T> {
 	direction: Axis
 }
 
-struct TitleBarContainer<T> {
-	title_bar: WidgetPod<T, Box<dyn Widget<T>>>
-}
-
 impl<T> Accordion<T> where T: Data {
 	pub fn horizontal(title_bar: impl Widget<T> + 'static) -> Self {
 		Self {

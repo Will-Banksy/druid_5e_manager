@@ -1,7 +1,7 @@
 mod srd;
 mod source_utils;
 
-use crate::data::internal::SourceCategory;
+use crate::data::internal::{SourceCategory, SourceContentCollection, SourceContentType};
 
 use super::internal::InternalSource;
 
@@ -16,20 +16,52 @@ pub fn get_sources() -> Vec<InternalSource> { // TODO: Maybe make this return a 
 		InternalSource {
 			name:"A source".into(),
 			category: SourceCategory::Core,
-			armours: im::Vector::new(),
-			feats: im::Vector::new()
+			content: im::vector![
+				SourceContentCollection::empty(SourceContentType::ArmourType),
+				SourceContentCollection::empty(SourceContentType::FeatType)
+			]
 		},
 		InternalSource {
 			name:"A very long source name that really goes on forever it's stupid".into(),
 			category: SourceCategory::Core,
-			armours: im::Vector::new(),
-			feats: im::Vector::new()
+			content: im::vector![
+				SourceContentCollection::empty(SourceContentType::ArmourType),
+				SourceContentCollection::empty(SourceContentType::FeatType)
+			]
 		},
 		InternalSource {
 			name:"A very long source name that really goes on forever it's stupid 2: Electric Boogaloo".into(),
 			category: SourceCategory::Supplements,
-			armours: im::Vector::new(),
-			feats: im::Vector::new()
+			content: im::vector![
+				SourceContentCollection::empty(SourceContentType::ArmourType),
+				SourceContentCollection::empty(SourceContentType::FeatType)
+			]
+		},
+		InternalSource {
+			name:"Source with lots of armours".into(),
+			category: SourceCategory::Supplements,
+			content: im::vector![
+				SourceContentCollection::empty(SourceContentType::ArmourType),
+				SourceContentCollection::empty(SourceContentType::ArmourType),
+				SourceContentCollection::empty(SourceContentType::ArmourType),
+				SourceContentCollection::empty(SourceContentType::ArmourType),
+				SourceContentCollection::empty(SourceContentType::ArmourType),
+				SourceContentCollection::empty(SourceContentType::ArmourType),
+				SourceContentCollection::empty(SourceContentType::FeatType)
+			]
+		},
+		InternalSource {
+			name:"Source with like nothing".into(),
+			category: SourceCategory::Supplements,
+			content: im::vector![
+				SourceContentCollection::empty(SourceContentType::FeatType)
+			]
+		},
+		InternalSource {
+			name:"Source with like nothing".into(),
+			category: SourceCategory::Supplements,
+			content: im::vector![
+			]
 		}
 	]
 }

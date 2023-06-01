@@ -3,20 +3,21 @@ pub mod internal;
 pub mod sources;
 pub mod app_config;
 pub mod transitive_app_state;
+pub mod lenses;
 
 use std::sync::Arc;
 
 use druid::{Lens, Data};
 use im::vector;
 
-use self::{character_state::CharacterState, internal::InternalSource, app_config::AppConfig, transitive_app_state::{TransitiveAppState, SelectedSourceArray}, sources::get_sources};
+use self::{character_state::CharacterState, internal::InternalSource, app_config::AppConfig, transitive_app_state::{TransitiveAppState}, sources::get_sources};
 
 #[derive(Clone, Data, Lens)]
 pub struct AppData {
 	pub character: CharacterState,
 	pub sources: im::Vector<InternalSource>,
 	pub app_config: AppConfig,
-	pub transitive_app_state: TransitiveAppState
+	pub uistate: TransitiveAppState
 }
 
 impl AppData {
@@ -25,7 +26,7 @@ impl AppData {
 			character: CharacterState::new(),
 			sources: vector![],
 			app_config: AppConfig {},
-			transitive_app_state: TransitiveAppState { nav_state: Arc::new(Vec::new()), selected_source: 0, selected_source_array: SelectedSourceArray::ArmourArray }
+			uistate: TransitiveAppState { nav_state: Arc::new(Vec::new()), selected_source: 0, selected_source_array: 0, selected_source_array_item: 0 }
 		}
 	}
 

@@ -31,28 +31,28 @@ impl Controller<AppData, Navigator<AppData, NavState>> for NavController {
 
 impl ViewController<NavState> for AppData {
 	fn add_view(&mut self, view: NavState) {
-		let views: &mut Vec<NavState> = Arc::make_mut(&mut self.transitive_app_state.nav_state);
+		let views: &mut Vec<NavState> = Arc::make_mut(&mut self.uistate.nav_state);
 		views.push(view);
 		let views = Arc::new(views.clone());
-		self.transitive_app_state.nav_state = views;
+		self.uistate.nav_state = views;
 	}
 
 	fn pop_view(&mut self) {
-		let views = Arc::make_mut(&mut self.transitive_app_state.nav_state);
+		let views = Arc::make_mut(&mut self.uistate.nav_state);
 		views.pop();
 		let views = Arc::new(views.clone());
-		self.transitive_app_state.nav_state = views;
+		self.uistate.nav_state = views;
 	}
 
 	fn current_view(&self) -> &NavState {
-		self.transitive_app_state.nav_state.last().unwrap()
+		self.uistate.nav_state.last().unwrap()
 	}
 
 	fn len(&self) -> usize {
-		self.transitive_app_state.nav_state.len()
+		self.uistate.nav_state.len()
 	}
 
 	fn is_empty(&self) -> bool {
-		self.transitive_app_state.nav_state.is_empty()
+		self.uistate.nav_state.is_empty()
 	}
 }
