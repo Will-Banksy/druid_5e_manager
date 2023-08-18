@@ -473,6 +473,7 @@ dependencies = [
  "image",
  "lazy_static",
  "num",
+ "paste",
  "ron",
  "serde",
  "serde_json",
@@ -1380,6 +1381,12 @@ dependencies = [
  "pango-sys",
  "system-deps",
 ]
+
+[[package]]
+name = "paste"
+version = "1.0.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "de3145af08024dea9fa9914f381a17b8fc6034dfb00f3a84013f7ff43f29ed4c"
 
 [[package]]
 name = "pico-args"

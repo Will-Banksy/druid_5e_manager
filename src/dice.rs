@@ -32,7 +32,7 @@ fn test_dice_expr_parse() {
 }
 
 impl DiceExpr {
-	pub fn parse(expr: &str) -> Result<Self, &'static str> { // TODO: Think of the best way to do this
+	pub fn parse(expr: &str) -> Result<Self, &'static str> { // TODO: Think of the best way to do this (Probably a simple lexer and then Shunting Yard?)
 		let exprch: Vec<char> = expr.chars().collect();
 		let mut curr_term: Vec<char> = Vec::with_capacity(exprch.len());
 		let mut dice_terms: Vec<DiceTerm> = Vec::new();

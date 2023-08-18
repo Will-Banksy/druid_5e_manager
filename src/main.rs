@@ -67,6 +67,15 @@ use view::{build_ui, build_app_menu};
 
 // TODO: ADD README
 
+// TODO: [FEATURES] Support Aurora Builder index (XML) files (or 5e.tools somehow)
+//     This will provide a place to get content outside of the SRD as provided by Open5e, and make migration easier. Not that anyone will migrate to this but a man can dream
+//     Might want a good amount in place before attempting to do this - or perhaps the process can highlight were this app lacks
+
+// TODO: [TASKS]
+//     Finish the content management screen
+//         This will include the ability to create/edit content in-GUI
+//     Redesign and reimplement the character manager based on the content management
+
 fn main() -> Result<(), PlatformError> {
 	let mut state: AppData = AppData::new();
 	state.init_sources();

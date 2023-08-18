@@ -5,7 +5,7 @@ use crate::{data::{character_state::{CharacterState, Level, Sense, Condition, Ab
 
 use super::{components::{common::{small_input_label, painter_background}, unique::{level, ability_score, saving_throw, skill}}, widgets::{separator::{CrossAxisSize, Separator}, ratio_split::RatioSplit}, formatter::NumberFormatter, controllers::DataUpdateAlertController};
 
-pub fn color_for(score_type: AbilityScoreType, env: &Env) -> Color { // TODO: Remove?
+pub fn color_for(_score_type: AbilityScoreType, env: &Env) -> Color { // TODO: Remove?
 	// match score_type {
 	// 	AbilityScoreType::Strength => env.get(env::THEME_COL_ABILITY_STRENGTH),
 	// 	AbilityScoreType::Dexterity => env.get(env::THEME_COL_ABILITY_DEXTERITY),

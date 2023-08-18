@@ -72,9 +72,3 @@ pub struct InternalSource {
 	pub category: SourceCategory,
 	pub content: im::Vector<SourceContentCollection>,
 }
-
-impl InternalSource {
-	pub fn new(name: String, category: SourceCategory) -> Self {
-		todo!()
-	}
-}

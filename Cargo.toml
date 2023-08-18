@@ -20,3 +20,4 @@ uuid = { version = "1.1.2", features = [ "v4", "fast-rng" ]}
 variantly = "0.2.0"
 image = "0.24.3"
 druid-widget-nursery = { git = "https://github.com/linebender/druid-widget-nursery" }
+paste = "1.0.14"

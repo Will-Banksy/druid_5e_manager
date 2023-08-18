@@ -1,7 +1,6 @@
 use std::{path::{PathBuf}, fs::{File, self}, io::Write, sync::Arc};
 
-use druid::{AppDelegate, DelegateCtx, Target, Command, Env, Handled, commands, FileDialogOptions, Selector, widget::ListIter, platform_menus::win::file::new};
-use druid_widget_nursery::navigator::ViewController;
+use druid::{AppDelegate, DelegateCtx, Target, Command, Env, Handled, commands, FileDialogOptions, Selector, widget::ListIter};
 
 use crate::{data::{character_state::{CharacterState, AbilityScoreType}, AppData, transitive_app_state::NavState}, rules};
 

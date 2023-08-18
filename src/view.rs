@@ -6,16 +6,13 @@ pub mod nav_controller;
 pub mod character_ui;
 pub mod content_ui;
 
-use druid::{Widget, WidgetExt, TextAlignment, Menu, MenuItem, Env, WindowId, FileDialogOptions, commands, PaintCtx, Color, RenderContext, SysMods, EventCtx, KeyOrValue};
-use druid::widget::{Label, Flex, TextBox, List, Painter, CrossAxisAlignment, Checkbox, Button, MainAxisAlignment};
+use druid::{Widget, WidgetExt, Menu, MenuItem, Env, WindowId, FileDialogOptions, commands, SysMods};
 
 use druid_widget_nursery::navigator::Navigator;
-use druid_widget_nursery::WidgetExt as _;
 
 use crate::data::AppData;
 use crate::data::transitive_app_state::NavState;
-use crate::{delegate, env};
-use crate::data::character_state::{CharacterState, AbilityScoreType, Level, Sense, Condition};
+use crate::delegate;
 
 use self::character_ui::build_character_ui;
 use self::nav_controller::NavController;

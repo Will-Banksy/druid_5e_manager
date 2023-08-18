@@ -38,7 +38,7 @@ mod source_data {
 
 use serde_json::from_str;
 
-use crate::data::{internal::{InternalSource, armour::{Armour, ArmourCategory}, item::{Rarity, Money}, feat::Feat, SourceCategory, SourceContentItem, SourceContentCollection, SourceContentType}, sources::srd::source_data::SourceArmour, character_state::AbilityScoreType};
+use crate::data::{internal::{InternalSource, armour::Armour, item::{Rarity, Money}, feat::Feat, SourceCategory, SourceContentItem, SourceContentCollection, SourceContentType}, sources::srd::source_data::SourceArmour, character_state::AbilityScoreType};
 
 use self::source_data::SourceFeat;
 
