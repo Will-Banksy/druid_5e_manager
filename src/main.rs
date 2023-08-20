@@ -45,6 +45,11 @@ use view::{build_ui, build_app_menu};
 //         This would also require a slight changeup of the stats themselves - Instead of being a flat score they are now a modifier to some default score but assuming a default of 0 doesn't change much
 //     Maybe it doesn't directly increase Str, but instead adds itself to and removes itself from a list of modifiers for Str?
 //     The last one might be best since I do want to keep track of what things contribute to what stats but I also like the robustness of the second-to-last
+//         Could a combination work? Say, keep track of the modifiers, but instead of when you add a feat it adds a modifier, adding a feat triggers a recalculation of modifiers
+
+// TODO: [DESIGN] Urgent-ish - Need to decide how stats are stored
+//     Currently, the character state is a struct where every field is a stat or modifier to a stat or whatnot
+//     It's an inflexible and messy design, and I'm wondering to what extent an approach where each stat is a value in a map, indexed by a string ID for the stat (e.g. "speeds.walking") would work
 
 // TODO: [DESIGN][UI/UX] Consider how to store Hit Dice, and more broadly how to store things like descriptions of items that are like "does 1d4 + Str piercing damage"
 //     Do we want to insert actual values for stats in there when displaying? Cause that may change what we do here

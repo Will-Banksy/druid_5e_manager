@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 druid = { version = "0.8", features = [ "im", "svg", "image" ] }
-num = "0.4.0"
+num-traits = "0.2.16"
 serde = { version = "1.0.137", features = [ "derive" ] }
 serde_json = "1.0.85"
 ron = "0.8.0" # Rusty Object Notation

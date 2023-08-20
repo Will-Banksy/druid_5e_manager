@@ -1,7 +1,7 @@
 use std::{fmt::Display, str::FromStr};
 
 use druid::text::{Selection, Formatter, Validation, ValidationError};
-use num::Zero;
+use num_traits::Zero;
 
 pub struct NumberFormatter {
 	unit: Option<&'static str>

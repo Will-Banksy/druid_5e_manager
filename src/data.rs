@@ -5,6 +5,7 @@ pub mod app_config;
 pub mod transitive_app_state;
 pub mod lenses;
 pub mod stat_modifier;
+pub mod new_character_state;
 
 use std::sync::Arc;
 

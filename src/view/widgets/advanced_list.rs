@@ -10,7 +10,7 @@ use std::cmp::Ordering;
 
 use druid::{Widget, Data, widget::{Axis, ListIter}, WidgetPod, LifeCycle, BoxConstraints, Rect, Point, Size, Selector, Event};
 
-pub const ADV_LIST_SELECT: Selector<usize> = Selector::new("druid_5e_manager.notifications.accordion-toggle");
+pub const ADV_LIST_SELECT: Selector<usize> = Selector::new("druid_5e_manager.notifications.advanced-list-select");
 
 /// An advanced version of druid's List widget that supports selection and filtering. Or, will do. Hopefully
 pub struct AdvancedList<T> {
