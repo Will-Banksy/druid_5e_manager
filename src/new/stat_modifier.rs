@@ -1,4 +1,5 @@
 use std::ops::{Add, Mul};
+use druid::Data;
 use num_traits::{Zero, One};
 
 use paste::paste;
@@ -6,7 +7,8 @@ use paste::paste;
 /// Describes a modifier to a stat, such as move speed. 3 ways of modifying the stat are available: adding to
 /// `base`, `flat` and `multiplier`. The final score is calculated from the initial score with: `(initial + base) * multiplier + flat`.
 /// Each value is actually stored as an array of tuples of the value and a string describing the source of the modifier
-pub struct StatModifier<T> where T: Clone + Copy + Add<Output = T> + Mul<Output = T> + Zero + One {
+#[derive(Clone, PartialEq, Data)]
+pub struct StatModifier<T> where T: Clone + Copy + Add<Output = T> + Mul<Output = T> + Zero + One + Data {
 	base: im::Vector<(T, String)>,
 	flat: im::Vector<(T, String)>,
 	multiplier: im::Vector<(T, String)>,
@@ -54,8 +56,8 @@ macro_rules! stat_has_fn {
 	};
 }
 
-impl<T> StatModifier<T> where T: Clone + Copy + Add<Output = T> + Mul<Output = T> + Zero + One {
-	fn new() -> Self {
+impl<T> StatModifier<T> where T: Clone + Copy + Add<Output = T> + Mul<Output = T> + Zero + One + Data {
+	pub fn new() -> Self {
 		Self {
 			base: im::Vector::new(),
 			flat: im::Vector::new(),
@@ -64,7 +66,7 @@ impl<T> StatModifier<T> where T: Clone + Copy + Add<Output = T> + Mul<Output = T
 	}
 
 	/// Uses this `StatModifier` to modify the passed-in stat
-	fn modify(&self, initial: T) -> T {
+	pub fn modify(&self, initial: T) -> T {
 		let base_mod = self.base.iter().fold(T::zero(), |acc, b| acc + b.0);
 		let mult_mod = self.multiplier.iter().fold(T::one(), |acc, m| acc * m.0);
 		let flat_mod = self.flat.iter().fold(T::zero(), |acc, f| acc + f.0);

@@ -5,10 +5,12 @@ pub mod rules;
 pub mod env;
 pub mod dice;
 pub mod utils;
+pub mod new;
 
 use data::AppData;
 use druid::{PlatformError, AppLauncher, WindowDesc};
 use env::config_env_defaults;
+use new::new_view::BuildUi;
 use view::{build_ui, build_app_menu};
 
 // TODO: Move all this shit to github issues lmao it's just clutter here and maybe with issues, the few random people stumbling across my repository will be able to give some thoughts wishful thinking though that probably is
@@ -82,16 +84,38 @@ use view::{build_ui, build_app_menu};
 //     Redesign and reimplement the character manager based on the content management
 
 fn main() -> Result<(), PlatformError> {
-	let mut state: AppData = AppData::new();
-	state.init_sources();
+	// let mut state: AppData = AppData::new();
+	// state.init_sources();
 
-	AppLauncher::with_window(WindowDesc::new(build_ui())
-		.title("D&D Character Manager")
+	// AppLauncher::with_window(WindowDesc::new(build_ui())
+	// 	.title("D&D Character Manager")
+	// 	.window_size((1400.0, 820.0))
+	// 	.menu(build_app_menu)
+	// )
+	// 	.delegate(delegate::Delegate::new())
+	// 	.configure_env(|env, _| config_env_defaults(env))
+	// 	.launch(state)?;
+
+	let state = new::new_character_state::NewCharacterState {
+		name: "Name".to_string(),
+		stats: im::hashmap![],
+		equipment: im::vector![
+			new::new_character_state::Equipment::Armour(
+				new::new_character_state::Armour { ac_bonus: 1 }
+			),
+			new::new_character_state::Equipment::Item(
+				new::new_character_state::Item { damage: 1 }
+			),
+			new::new_character_state::Equipment::Item(
+				new::new_character_state::Item { damage: 2 }
+			)
+		],
+	};
+
+	AppLauncher::with_window(WindowDesc::new(new::new_character_state::NewCharacterState::build_ui())
+		.title("D&D 5e Character Manager")
 		.window_size((1400.0, 820.0))
-		.menu(build_app_menu)
 	)
-		.delegate(delegate::Delegate::new())
-		.configure_env(|env, _| config_env_defaults(env))
 		.launch(state)?;
 
 	Ok(())
