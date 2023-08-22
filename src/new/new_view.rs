@@ -1,7 +1,7 @@
 use druid::{Data, Widget, widget::{Flex, TextBox, List, Label}, WidgetExt};
 use druid_widget_nursery::enum_switcher::Switcher;
 
-use super::new_character_state::{NewCharacterState, Equipment, Armour, EquipmentArmour, EquipmentItem, Item};
+use super::new_character_state::{NewCharacterState, Equipment, Armour, EquipmentArmour, EquipmentAdventuringGear, AdventuringGear};
 
 /// Types implementing this trait can construct UI to view their data with the static `build_ui` method
 ///
@@ -31,7 +31,7 @@ impl BuildUi for Equipment {
 				.with_child(
 					Switcher::new()
 						.with_variant(EquipmentArmour, Armour::build_ui())
-						.with_variant(EquipmentItem, Item::build_ui())
+						.with_variant(EquipmentAdventuringGear, AdventuringGear::build_ui())
 				)
 		)
 	}
@@ -43,7 +43,7 @@ impl BuildUi for Armour {
 	}
 }
 
-impl BuildUi for Item {
+impl BuildUi for AdventuringGear {
 	fn build_ui() -> Box<dyn Widget<Self>> {
 		Box::new(Label::new("Item"))
 	}

@@ -103,11 +103,11 @@ fn main() -> Result<(), PlatformError> {
 			new::new_character_state::Equipment::Armour(
 				new::new_character_state::Armour { ac_bonus: 1 }
 			),
-			new::new_character_state::Equipment::Item(
-				new::new_character_state::Item { damage: 1 }
+			new::new_character_state::Equipment::AdventuringGear(
+				new::new_character_state::AdventuringGear { damage: 1 }
 			),
-			new::new_character_state::Equipment::Item(
-				new::new_character_state::Item { damage: 2 }
+			new::new_character_state::Equipment::AdventuringGear(
+				new::new_character_state::AdventuringGear { damage: 2 }
 			)
 		],
 	};

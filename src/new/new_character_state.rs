@@ -17,7 +17,7 @@ pub struct NewCharacterState {
 #[derive(Clone, Data, Prism)]
 pub enum Equipment {
 	Armour(Armour),
-	Item(Item)
+	AdventuringGear(AdventuringGear),
 }
 
 #[derive(Clone, Data)]
@@ -26,7 +26,7 @@ pub struct Armour {
 }
 
 #[derive(Clone, Data)]
-pub struct Item {
+pub struct AdventuringGear {
 	pub damage: i32
 }
 
