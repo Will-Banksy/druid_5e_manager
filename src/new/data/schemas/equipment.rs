@@ -39,7 +39,7 @@ pub enum Rarity {
 	Custom(String)
 }
 
-pub struct EquipmentBasicInfo { // TODO: Or fit the different types of equipment into a struct
+pub struct EquipmentBasicInfo {
 	name: String,
 	description: String,
 	cost: Currency,

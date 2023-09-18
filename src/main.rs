@@ -8,9 +8,9 @@ pub mod utils;
 pub mod new;
 
 use data::AppData;
-use druid::{PlatformError, AppLauncher, WindowDesc};
+use druid::{PlatformError, AppLauncher, WindowDesc, WidgetExt};
 use env::config_env_defaults;
-use new::new_view::BuildUi;
+use new::{view::{BuildUi, BuildUiMut}, data::schemas::player_character::PlayerCharacter};
 use view::{build_ui, build_app_menu};
 
 // TODO: Move all this shit to github issues lmao it's just clutter here and maybe with issues, the few random people stumbling across my repository will be able to give some thoughts wishful thinking though that probably is
@@ -94,29 +94,15 @@ fn main() -> Result<(), PlatformError> {
 	// )
 	// 	.delegate(delegate::Delegate::new())
 	// 	.configure_env(|env, _| config_env_defaults(env))
-	// 	.launch(state)?;
+	// 	.launch(state)
 
-	let state = new::new_character_state::NewCharacterState {
-		name: "Name".to_string(),
-		stats: im::hashmap![],
-		equipment: im::vector![
-			new::new_character_state::Equipment::Armour(
-				new::new_character_state::Armour { ac_bonus: 1 }
-			),
-			new::new_character_state::Equipment::AdventuringGear(
-				new::new_character_state::AdventuringGear { damage: 1 }
-			),
-			new::new_character_state::Equipment::AdventuringGear(
-				new::new_character_state::AdventuringGear { damage: 2 }
-			)
-		],
-	};
+	let state = PlayerCharacter::new_5e();
 
-	AppLauncher::with_window(WindowDesc::new(new::new_character_state::NewCharacterState::build_ui())
+	AppLauncher::with_window(WindowDesc::new(PlayerCharacter::build_ui_mut().env_scope(|env, _| env::config_env_defaults(env)))
 		.title("D&D 5e Character Manager")
 		.window_size((1400.0, 820.0))
 	)
-		.launch(state)?;
+		.launch(state)
 
-	Ok(())
+	// Ok(())
 }
