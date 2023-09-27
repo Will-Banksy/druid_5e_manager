@@ -1,4 +1,8 @@
+use std::fmt::Display;
+
 use druid::Data;
+
+use super::lens::index_or as lens;
 
 pub const ID_5E_STAT_ABILITY_SCORE_STRENGTH: Identifier = Identifier::new("5e.ability_score.strength");
 pub const ID_5E_STAT_ABILITY_SCORE_DEXTERITY: Identifier = Identifier::new("5e.ability_score.dexterity");
@@ -17,8 +21,14 @@ impl Identifier {
 		Identifier { id }
 	}
 
-	pub fn lens(&self) -> druid::lens::Index<&Identifier> {
+	/// Returns a panicking index lens
+	pub fn index_lens(&self) -> druid::lens::Index<&Identifier> {
 		druid::lens::Index::new(self)
+	}
+
+	/// Returns a non-panicking index lens
+	pub fn index_or_lens(&self) -> lens::IndexOr<&Identifier> {
+		lens::IndexOr::new(&self)
 	}
 }
 
@@ -26,4 +36,10 @@ impl From<&'static str> for Identifier {
     fn from(value: &'static str) -> Self {
         Identifier { id: value }
     }
+}
+
+impl Display for Identifier {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "{}", self.id)
+	}
 }

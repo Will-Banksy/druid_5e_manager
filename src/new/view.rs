@@ -1,9 +1,9 @@
 use druid::{Data, Widget, widget::{Flex, TextBox, List, Label}, lens, WidgetExt, LensExt};
-use druid_widget_nursery::enum_switcher::Switcher;
+use druid_widget_nursery::{enum_switcher::Switcher, prism::{OptionSome, OptionNone}};
 
 use crate::view::formatter::NumberFormatter;
 
-use super::{new_character_state::{NewCharacterState, Equipment, Armour, EquipmentArmour, EquipmentAdventuringGear, AdventuringGear}, data::{schemas::player_character::PlayerCharacter, identifer::{Identifier, ID_5E_STAT_ABILITY_SCORE_CHARISMA, ID_5E_STAT_ABILITY_SCORE_STRENGTH, ID_5E_STAT_ABILITY_SCORE_INTELLIGENCE, ID_5E_STAT_ABILITY_SCORE_CONSTITUTION, ID_5E_STAT_ABILITY_SCORE_DEXTERITY, ID_5E_STAT_ABILITY_SCORE_WISDOM}, attribute::{ValueAttribute, ValueAttributeFloat64, ValueAttributeInt64, ValueAttributeUInt64}}};
+use super::{new_character_state::{NewCharacterState, Equipment, Armour, EquipmentArmour, EquipmentAdventuringGear, AdventuringGear}, data::{schemas::player_character::PlayerCharacter, identifer::{Identifier, ID_5E_STAT_ABILITY_SCORE_CHARISMA, ID_5E_STAT_ABILITY_SCORE_STRENGTH, ID_5E_STAT_ABILITY_SCORE_INTELLIGENCE, ID_5E_STAT_ABILITY_SCORE_CONSTITUTION, ID_5E_STAT_ABILITY_SCORE_DEXTERITY, ID_5E_STAT_ABILITY_SCORE_WISDOM}, attribute::{ValueAttribute, ValueAttributeFloat64, ValueAttributeInt64, ValueAttributeUInt64}}, widgets::index_or_wrap::{IndexOrWrap, IndexOrExt}};
 
 /// Semantically, types implementing this trait can construct UI to view their data with the static `build_ui` method
 ///
@@ -67,7 +67,11 @@ fn ability_score(name: &str, stat_id: &'static Identifier) -> impl Widget<Player
 		)
 		.with_default_spacer()
 		.with_child(
-			ValueAttribute::build_ui_mut().lens(PlayerCharacter::stats.then(stat_id.lens()))
+			Switcher::new()
+				.with_variant(OptionSome, ValueAttribute::build_ui_mut())
+				.with_variant(OptionNone, Label::new(format!("Stat \"{}\" not found", stat_id)))
+				.index_or(stat_id)
+				.lens(PlayerCharacter::stats)
 		)
 }
 
